@@ -179,7 +179,11 @@ img {
   animation: pulseDot 2s ease-in-out infinite;
 }
 
-/* Shimmer mejorado para skeletons */
+/* Animación slideUp para cambio de pregunta */
+@keyframes slideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
 .shimmer-bg {
   background: linear-gradient(
     90deg,
