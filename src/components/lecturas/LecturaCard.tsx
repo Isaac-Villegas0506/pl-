@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { BookOpen, BookmarkPlus } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
 import ProgressBar from '@/components/ui/ProgressBar'
+import { obtenerGradientePortada } from '@/lib/utils'
 import type { LecturaConRelaciones } from '@/types/app.types'
 
 interface LecturaCardProps {
@@ -14,24 +15,6 @@ interface LecturaCardProps {
   progreso?: number
 }
 
-const COVER_GRADIENTS = [
-  'linear-gradient(135deg, #667EEA, #764BA2)',
-  'linear-gradient(135deg, #F093FB, #F5576C)',
-  'linear-gradient(135deg, #4FACFE, #00F2FE)',
-  'linear-gradient(135deg, #43E97B, #38F9D7)',
-  'linear-gradient(135deg, #FA709A, #FEE140)',
-  'linear-gradient(135deg, #A18CD1, #FBC2EB)',
-]
-
-function getGradient(id: string): string {
-  const last = id.slice(-1).toLowerCase()
-  if (['0', '1'].includes(last)) return COVER_GRADIENTS[0]
-  if (['2', '3'].includes(last)) return COVER_GRADIENTS[1]
-  if (['4', '5'].includes(last)) return COVER_GRADIENTS[2]
-  if (['6', '7'].includes(last)) return COVER_GRADIENTS[3]
-  if (['8', '9'].includes(last)) return COVER_GRADIENTS[4]
-  return COVER_GRADIENTS[5]
-}
 
 function getMateriaVariant(nombre: string): 'primary' | 'orange' | 'purple' | 'teal' | 'success' | 'error' | 'default' {
   const map: Record<string, 'primary' | 'orange' | 'purple' | 'teal' | 'success' | 'error'> = {
@@ -53,7 +36,7 @@ export default function LecturaCard({
   showProgress = false,
   progreso = 0,
 }: LecturaCardProps) {
-  const gradient = getGradient(lectura.id)
+  const gradient = obtenerGradientePortada(lectura.id)
 
   if (variant === 'horizontal') {
     return (

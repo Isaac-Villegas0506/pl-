@@ -51,3 +51,19 @@ export function notaColor(nota: number): string {
   if (nota >= 11) return 'text-blue-600'
   return 'text-red-600'
 }
+
+export function obtenerGradientePortada(id: string): string {
+  const gradientes = [
+    'linear-gradient(135deg, #667EEA 0%, #764BA2 100%)',
+    'linear-gradient(135deg, #F093FB 0%, #F5576C 100%)',
+    'linear-gradient(135deg, #4FACFE 0%, #00F2FE 100%)',
+    'linear-gradient(135deg, #43E97B 0%, #38F9D7 100%)',
+    'linear-gradient(135deg, #FA709A 0%, #FEE140 100%)',
+    'linear-gradient(135deg, #A18CD1 0%, #FBC2EB 100%)',
+    'linear-gradient(135deg, #FD746C 0%, #FF9068 100%)',
+    'linear-gradient(135deg, #4776E6 0%, #8E54E9 100%)',
+  ]
+  const ultimo = id?.slice(-1) ?? '0'
+  const index = parseInt(ultimo, 16)
+  return gradientes[isNaN(index) ? 0 : index % gradientes.length]
+}

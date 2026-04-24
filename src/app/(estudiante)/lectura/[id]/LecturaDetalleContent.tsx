@@ -8,7 +8,7 @@ import {
   FileText, Calendar, HelpCircle, Download,
 } from 'lucide-react'
 import { Badge, ProgressBar, Button } from '@/components/ui'
-import { formatFecha } from '@/lib/utils'
+import { formatFecha, obtenerGradientePortada } from '@/lib/utils'
 import { toggleFavoritoAction } from './actions'
 import type { LecturaDetalleCompleta, ProgresoLectura, AsignacionDetalle } from './types'
 
@@ -54,41 +54,102 @@ export default function LecturaDetalleContent({
 
   return (
     <div style={{ minHeight: '100vh', background: '#F5F3FF' }}>
-      {/* HERO IMAGE */}
-      <div className="relative h-[280px] w-full">
-        {lectura.portada_url ? (
+
+      {/* ===== HERO SECTION ===== */}
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        height: '300px',
+        overflow: 'hidden',
+        background: obtenerGradientePortada(lectura.id),
+      }}>
+        {/* Imagen si existe */}
+        {lectura.portada_url && (
           <Image
             src={lectura.portada_url}
             alt={lectura.titulo}
             fill
-            className="object-cover"
+            style={{ objectFit: 'cover', zIndex: 1 }}
             priority
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #E2E8F0, #CBD5E1)' }}>
-            <BookOpen size={64} className="text-[#94A3B8]" />
+        )}
+
+        {/* Ícono de libro si NO hay portada */}
+        {!lectura.portada_url && (
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 1,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexDirection: 'column', gap: '12px',
+          }}>
+            <div style={{
+              width: '80px', height: '80px',
+              background: 'rgba(255,255,255,0.2)',
+              borderRadius: '20px', backdropFilter: 'blur(8px)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <BookOpen size={40} color="rgba(255,255,255,0.9)" strokeWidth={1.2} />
+            </div>
+            <span style={{
+              fontSize: '12px', fontWeight: 700,
+              color: 'rgba(255,255,255,0.7)',
+              letterSpacing: '0.1em', textTransform: 'uppercase',
+            }}>
+              Sin portada
+            </span>
           </div>
         )}
-        <div className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.3) 100%)' }} />
 
-        {/* Back button */}
+        {/* Gradiente inferior para suavizar transición a la card blanca */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          height: '140px', zIndex: 2,
+          background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.35) 100%)',
+        }} />
+
+        {/* Botón REGRESAR */}
         <button
           onClick={() => router.back()}
-          className="absolute top-4 left-4 z-10 bg-white/80 rounded-full p-1.5 cursor-pointer"
+          style={{
+            position: 'absolute', top: '16px', left: '16px', zIndex: 10,
+            width: '38px', height: '38px',
+            background: 'rgba(255,255,255,0.88)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: 'none', borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+            transition: 'transform 0.15s, background 0.15s',
+          }}
         >
-          <ChevronLeft size={28} className="text-[#0F172A]" />
+          <ChevronLeft size={20} color="#111827" strokeWidth={2.5} />
         </button>
 
-        {/* Bookmark button */}
+        {/* Botón BOOKMARK */}
         <button
           onClick={handleToggleFavorito}
-          className="absolute top-4 right-4 z-10 bg-white/80 rounded-full p-2 cursor-pointer"
+          style={{
+            position: 'absolute', top: '16px', right: '16px', zIndex: 10,
+            width: '38px', height: '38px',
+            background: 'rgba(255,255,255,0.88)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: 'none', borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+            transition: 'transform 0.15s',
+          }}
         >
           <Bookmark
-            size={22}
-            className={favoritoLocal ? 'text-[#2563EB] fill-[#2563EB]' : 'text-[#475569]'}
+            size={20}
+            color={favoritoLocal ? '#4F46E5' : '#374151'}
+            fill={favoritoLocal ? '#4F46E5' : 'none'}
+            strokeWidth={2}
+            style={{
+              transition: 'color 0.2s, fill 0.2s',
+              transform: favoritoLocal ? 'scale(1.15)' : 'scale(1)',
+            }}
           />
         </button>
       </div>
@@ -97,12 +158,13 @@ export default function LecturaDetalleContent({
       <div style={{
         background: 'white',
         borderRadius: '24px 24px 0 0',
-        marginTop: '-24px',
+        marginTop: '-28px',
         padding: '24px 20px',
         paddingBottom: '120px',
         position: 'relative',
-        zIndex: 2,
-        minHeight: 'calc(100vh - 256px)',
+        zIndex: 3,
+        minHeight: 'calc(100vh - 272px)',
+        boxShadow: '0 -4px 20px rgba(0,0,0,0.08)',
       }}>
         {/* Badge */}
         {lectura.materias && (
