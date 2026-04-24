@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import { BookOpen, BookmarkPlus } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import Badge from '@/components/ui/Badge'
 import ProgressBar from '@/components/ui/ProgressBar'
 import type { LecturaConRelaciones } from '@/types/app.types'
@@ -16,12 +15,12 @@ interface LecturaCardProps {
 }
 
 const COVER_GRADIENTS = [
-  'linear-gradient(135deg, #667EEA, #764BA2)', // 0-1
-  'linear-gradient(135deg, #F093FB, #F5576C)', // 2-3
-  'linear-gradient(135deg, #4FACFE, #00F2FE)', // 4-5
-  'linear-gradient(135deg, #43E97B, #38F9D7)', // 6-7
-  'linear-gradient(135deg, #FA709A, #FEE140)', // 8-9
-  'linear-gradient(135deg, #A18CD1, #FBC2EB)', // a-f
+  'linear-gradient(135deg, #667EEA, #764BA2)',
+  'linear-gradient(135deg, #F093FB, #F5576C)',
+  'linear-gradient(135deg, #4FACFE, #00F2FE)',
+  'linear-gradient(135deg, #43E97B, #38F9D7)',
+  'linear-gradient(135deg, #FA709A, #FEE140)',
+  'linear-gradient(135deg, #A18CD1, #FBC2EB)',
 ]
 
 function getGradient(id: string): string {
@@ -47,17 +46,6 @@ function getMateriaVariant(nombre: string): 'primary' | 'orange' | 'purple' | 't
   return map[nombre] ?? 'default'
 }
 
-function PortadaPlaceholder({ id, className }: { id: string; className?: string }) {
-  return (
-    <div
-      className={cn('flex items-center justify-center', className)}
-      style={{ background: getGradient(id) }}
-    >
-      <BookOpen size={28} className="text-white drop-shadow-sm" />
-    </div>
-  )
-}
-
 export default function LecturaCard({
   lectura,
   onPress,
@@ -65,41 +53,82 @@ export default function LecturaCard({
   showProgress = false,
   progreso = 0,
 }: LecturaCardProps) {
+  const gradient = getGradient(lectura.id)
+
   if (variant === 'horizontal') {
     return (
       <div
         onClick={onPress}
-        className={cn(
-          'flex gap-3 p-3 bg-white rounded-[18px]',
-          'shadow-[0_2px_8px_rgba(0,0,0,0.06),_0_0_0_1px_rgba(0,0,0,0.02)]',
-          'transition-all duration-150',
-          onPress && 'cursor-pointer active:scale-[0.98]'
-        )}
+        style={{
+          display: 'flex',
+          gap: '12px',
+          background: 'white',
+          borderRadius: '18px',
+          padding: '14px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.02)',
+          cursor: onPress ? 'pointer' : 'default',
+          transition: 'transform 0.15s',
+          marginBottom: '10px',
+        }}
       >
-        {lectura.portada_url ? (
-          <div className="relative w-[68px] h-[88px] rounded-[12px] overflow-hidden shrink-0 shadow-[0_4px_12px_rgba(0,0,0,0.12)]">
-            <Image src={lectura.portada_url} alt={lectura.titulo} fill className="object-cover" />
-          </div>
-        ) : (
-          <PortadaPlaceholder id={lectura.id} className="w-[68px] h-[88px] rounded-[12px] shrink-0 shadow-[0_4px_12px_rgba(0,0,0,0.12)]" />
-        )}
+        {/* IMAGEN */}
+        <div style={{
+          width: '68px',
+          height: '88px',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          flexShrink: 0,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+          background: gradient,
+          position: 'relative',
+        }}>
+          {lectura.portada_url
+            ? <Image src={lectura.portada_url} alt={lectura.titulo} fill style={{ objectFit: 'cover' }} />
+            : <div style={{
+                width: '100%', height: '100%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <BookOpen size={24} color="rgba(255,255,255,0.8)" strokeWidth={1.2} />
+              </div>
+          }
+        </div>
 
-        <div className="flex-1 flex flex-col justify-between min-w-0 py-0.5">
-          <div>
-            {lectura.materias && (
-              <Badge variant={getMateriaVariant(lectura.materias.nombre)} size="sm">
-                {lectura.materias.nombre}
-              </Badge>
-            )}
-            <p className="text-[14px] font-bold text-[#111827] line-clamp-2 mt-1 leading-[1.3]">
-              {lectura.titulo}
-            </p>
-            <p className="text-[12px] text-[#6B7280] font-medium mt-0.5 line-clamp-1">{lectura.autor}</p>
-          </div>
+        {/* CONTENIDO */}
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          minWidth: 0,
+        }}>
+          {lectura.materias && (
+            <Badge variant={getMateriaVariant(lectura.materias.nombre)} size="sm">
+              {lectura.materias.nombre}
+            </Badge>
+          )}
+          <p style={{
+            fontSize: '14px', fontWeight: 700, color: '#111827',
+            marginTop: '6px', lineHeight: '1.3',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}>
+            {lectura.titulo}
+          </p>
+          <p style={{
+            fontSize: '12px', color: '#6B7280',
+            marginTop: '4px', fontWeight: 500,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            {lectura.autor}
+          </p>
           {showProgress && (
-            <div className="mt-2">
+            <div style={{ marginTop: '8px' }}>
               <ProgressBar value={progreso} size="sm" />
-              <p className="text-[11px] text-[#9CA3AF] mt-0.5">{progreso}% completado</p>
+              <p style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '4px' }}>
+                {progreso}% completado
+              </p>
             </div>
           )}
         </div>
@@ -107,41 +136,80 @@ export default function LecturaCard({
     )
   }
 
-  // Vertical variant
+  // Variante vertical
   return (
     <div
       onClick={onPress}
-      className={cn(
-        'w-[148px] shrink-0',
-        'transition-transform duration-150',
-        onPress && 'cursor-pointer active:scale-[0.95]'
-      )}
+      style={{
+        width: '148px',
+        flexShrink: 0,
+        cursor: onPress ? 'pointer' : 'default',
+        transition: 'transform 0.15s',
+      }}
     >
-      <div className="relative w-full h-[196px] rounded-[16px] overflow-hidden shadow-[0_8px_20px_rgba(0,0,0,0.15)]">
+      {/* IMAGEN */}
+      <div style={{
+        width: '100%',
+        height: '196px',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        position: 'relative',
+        boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
+        background: gradient,
+      }}>
         {lectura.portada_url ? (
-          <Image src={lectura.portada_url} alt={lectura.titulo} fill className="object-cover" />
+          <Image src={lectura.portada_url} alt={lectura.titulo} fill style={{ objectFit: 'cover' }} />
         ) : (
-          <PortadaPlaceholder id={lectura.id} className="w-full h-full" />
+          <div style={{
+            width: '100%', height: '100%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <BookOpen size={40} color="rgba(255,255,255,0.8)" strokeWidth={1.2} />
+          </div>
         )}
+        {/* BOTÓN BOOKMARK */}
         <button
-          className="absolute top-2 right-2 rounded-full p-1.5 cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.12)] transition-transform active:scale-90"
-          style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)' }}
           onClick={(e) => e.stopPropagation()}
+          style={{
+            position: 'absolute', top: '8px', right: '8px',
+            width: '30px', height: '30px',
+            background: 'rgba(255,255,255,0.9)',
+            backdropFilter: 'blur(8px)',
+            border: 'none', borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+          }}
         >
-          <BookmarkPlus size={14} className="text-[#374151]" />
+          <BookmarkPlus size={14} color="#374151" />
         </button>
       </div>
+
+      {/* INFO */}
       {lectura.materias && (
-        <div className="mt-2">
+        <div style={{ marginTop: '10px' }}>
           <Badge variant={getMateriaVariant(lectura.materias.nombre)} size="sm">
             {lectura.materias.nombre}
           </Badge>
         </div>
       )}
-      <p className="text-[14px] font-bold text-[#111827] mt-1 line-clamp-2 leading-[1.3]">
+      <p style={{
+        fontSize: '13px', fontWeight: 700, color: '#111827',
+        marginTop: '6px', lineHeight: '1.3',
+        display: '-webkit-box',
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden',
+      }}>
         {lectura.titulo}
       </p>
-      <p className="text-[12px] text-[#9CA3AF] font-medium mt-0.5 line-clamp-1">{lectura.autor}</p>
+      <p style={{
+        fontSize: '12px', color: '#9CA3AF', fontWeight: 500,
+        marginTop: '3px',
+        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+      }}>
+        {lectura.autor}
+      </p>
     </div>
   )
 }

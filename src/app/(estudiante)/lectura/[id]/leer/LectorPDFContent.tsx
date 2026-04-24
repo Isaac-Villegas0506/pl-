@@ -184,10 +184,23 @@ export default function LectorPDFContent({
   const porcentaje = numPages ? Math.round((paginaActual / numPages) * 100) : 0
 
   return (
-    <div className="flex flex-col h-full" style={{ backgroundColor: bgColor }}>
-      {/* HEADER */}
-      <div className="sticky top-0 z-20 px-4 py-3 flex items-center gap-2"
-        style={{ backgroundColor: headerBg, borderBottom: modoOscuro ? 'none' : '1px solid #E2E8F0' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: bgColor,
+      display: 'flex',
+      flexDirection: 'column',
+      paddingTop: '56px',
+      paddingBottom: '56px',
+    }}>
+      {/* HEADER FIJO */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        height: '56px',
+        background: headerBg,
+        borderBottom: modoOscuro ? '1px solid rgba(255,255,255,0.08)' : '1px solid #E5E7EB',
+        display: 'flex', alignItems: 'center',
+        padding: '0 16px', gap: '12px',
+      }}>
         <button onClick={handleBack} className="cursor-pointer shrink-0">
           <ChevronLeft size={24} style={{ color: textColor }} />
         </button>
@@ -235,10 +248,10 @@ export default function LectorPDFContent({
         </div>
       )}
 
-      {/* PDF AREA */}
+      {/* ÁREA DEL PDF */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-auto flex items-start justify-center"
+        style={{ flex: 1, overflow: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -250,8 +263,17 @@ export default function LectorPDFContent({
         />
       </div>
 
-      {/* FOOTER */}
-      <div className="px-4 py-3" style={{ backgroundColor: headerBg }}>
+      {/* FOOTER FIJO */}
+      <div style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100,
+        height: '56px',
+        background: headerBg,
+        borderTop: modoOscuro ? '1px solid rgba(255,255,255,0.08)' : '1px solid #E5E7EB',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: '8px 20px',
+        gap: '4px',
+      }}>
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => handlePageChange(paginaActual - 1)}

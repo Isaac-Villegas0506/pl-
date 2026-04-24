@@ -33,41 +33,65 @@ export default function InicioContent({
   const nombreCorto = usuario.nombre?.split(' ')[0] ?? 'Estudiante'
 
   return (
-    <div className="max-w-md mx-auto px-4 pt-5 pb-28 animate-fade-in">
+    <div style={{
+      maxWidth: '480px',
+      margin: '0 auto',
+      padding: '20px 16px 24px',
+      minHeight: '100vh',
+    }}>
       {/* HEADER */}
-      <div className="flex items-center justify-between">
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        marginBottom: '16px',
+      }}>
         <div>
-          <p className="text-sm text-[#9CA3AF] font-medium">¡Hola, {nombreCorto}! 👋</p>
-          <h1
-            className="text-[28px] font-extrabold text-[#111827] leading-tight"
-            style={{ fontFamily: 'var(--font-nunito)' }}
-          >
+          <p style={{ fontSize: '13px', color: '#9CA3AF', fontWeight: 500 }}>
+            ¡Hola, {nombreCorto}! 👋
+          </p>
+          <h1 style={{
+            fontSize: '28px', fontWeight: 800, color: '#111827',
+            lineHeight: '1.1', marginTop: '2px',
+            fontFamily: 'var(--font-nunito)',
+          }}>
             Inicio
           </h1>
         </div>
         <button
           onClick={() => navegar('/notificaciones')}
-          className="relative w-10 h-10 rounded-[12px] bg-[#F5F3FF] flex items-center justify-center cursor-pointer transition-all active:scale-90 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
+          style={{
+            width: '40px', height: '40px',
+            background: '#F5F3FF',
+            border: 'none', borderRadius: '12px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', position: 'relative',
+            flexShrink: 0,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+          }}
         >
-          <Bell size={20} className="text-[#6B7280]" />
+          <Bell size={20} color="#6B7280" strokeWidth={1.8} />
           {notificacionesCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#F43F5E]" />
+            <span style={{
+              position: 'absolute', top: '6px', right: '6px',
+              width: '8px', height: '8px',
+              background: '#F43F5E', borderRadius: '50%',
+              border: '1.5px solid white',
+            }} />
           )}
         </button>
       </div>
 
       {/* SEARCH */}
-      <div className="mt-4">
+      <div style={{ marginBottom: '24px' }}>
         <BuscadorHome onSearch={(q) => navegar(`/explorar?q=${encodeURIComponent(q)}`)} />
       </div>
 
       {/* ACCESOS RÁPIDOS */}
-      <div className="mt-7">
+      <div style={{ marginBottom: '28px' }}>
         <AccesoRapido onNavegar={navegar} />
       </div>
 
       {/* CONTINUAR LEYENDO */}
-      <div className="mt-7">
+      <div style={{ marginBottom: '28px' }}>
         <SectionHeader
           title="Continuar leyendo"
           linkText="Ver todos"
@@ -106,11 +130,19 @@ export default function InicioContent({
       </div>
 
       {/* RECOMENDADOS */}
-      <div className="mt-7">
+      <div style={{ marginBottom: '28px' }}>
         <SectionHeader title="Recomendados para ti" />
-        <div className="mt-3">
+        <div style={{ marginTop: '12px' }}>
           {recomendados.length > 0 ? (
-            <div className="flex gap-3.5 overflow-x-auto pb-2 scrollbar-hide -mr-4 pr-4">
+            <div style={{
+              display: 'flex', gap: '14px',
+              overflowX: 'auto', paddingBottom: '8px',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              marginLeft: '-16px',
+              paddingLeft: '16px',
+              paddingRight: '16px',
+            }}>
               {recomendados.map((lectura, i) => (
                 <div
                   key={lectura.id}
@@ -136,13 +168,13 @@ export default function InicioContent({
       </div>
 
       {/* PENDIENTES */}
-      <div className="mt-7">
+      <div style={{ marginBottom: '28px' }}>
         <SectionHeader
           title="Pendientes"
           linkText="Ver todos"
           onLinkPress={() => navegar('/mis-libros?filtro=pendientes')}
         />
-        <div className="mt-3 space-y-3">
+        <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {pendientes.length > 0 ? (
             pendientes.map((asig, i) => (
               <div

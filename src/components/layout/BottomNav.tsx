@@ -2,21 +2,20 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import { Home, Compass, BookMarked, User } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
 
 interface NavItem {
   label: string
   href: string
-  icon: LucideIcon
+  Icon: LucideIcon
   exactMatch?: boolean
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Inicio',    href: '/inicio',    icon: Home,      exactMatch: true },
-  { label: 'Explorar',  href: '/explorar',  icon: Compass },
-  { label: 'Mis Libros',href: '/mis-libros',icon: BookMarked },
-  { label: 'Perfil',    href: '/perfil',    icon: User },
+  { label: 'Inicio',     href: '/inicio',     Icon: Home,      exactMatch: true },
+  { label: 'Explorar',   href: '/explorar',   Icon: Compass },
+  { label: 'Mis Libros', href: '/mis-libros', Icon: BookMarked },
+  { label: 'Perfil',     href: '/perfil',     Icon: User },
 ]
 
 export default function BottomNav() {
@@ -29,55 +28,71 @@ export default function BottomNav() {
   }
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-50"
-      style={{
-        background: 'rgba(255,255,255,0.92)',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-        borderTop: '1px solid rgba(229,231,235,0.6)',
-        boxShadow: '0 -4px 20px rgba(0,0,0,0.06)',
-        height: '68px',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-      }}
-    >
-      <div className="max-w-md mx-auto flex items-stretch justify-around h-full px-2">
+    <nav style={{
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      zIndex: 9999,
+      height: '64px',
+      background: 'rgba(255,255,255,0.95)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      borderTop: '1px solid rgba(229,231,235,0.8)',
+      boxShadow: '0 -4px 20px rgba(0,0,0,0.06)',
+      paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+    }}>
+      <div style={{
+        maxWidth: '480px',
+        margin: '0 auto',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 8px',
+      }}>
         {NAV_ITEMS.map((item) => {
           const active = isActive(item)
-          const Icon = item.icon
-
           return (
             <button
               key={item.href}
               onClick={() => router.push(item.href)}
-              className={cn(
-                'flex flex-col items-center justify-center gap-1 flex-1 py-2 cursor-pointer',
-                'transition-transform duration-100 active:scale-90',
-                'relative outline-none'
-              )}
+              style={{
+                flex: 1,
+                border: 'none',
+                background: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '3px',
+                cursor: 'pointer',
+                padding: '8px 4px',
+                position: 'relative',
+                outline: 'none',
+              }}
             >
-              {/* Active pill indicator at top */}
-              <span
-                className={cn(
-                  'absolute top-0 left-1/2 -translate-x-1/2',
-                  'h-1 w-8 rounded-full transition-all duration-300',
-                  active ? 'bg-[#4F46E5] opacity-100 scale-100' : 'bg-transparent opacity-0 scale-0'
-                )}
+              {/* Indicador activo arriba */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                width: '32px',
+                height: '3px',
+                borderRadius: '0 0 4px 4px',
+                background: active ? '#4F46E5' : 'transparent',
+                transition: 'background 0.2s',
+              }} />
+              <item.Icon
+                size={22}
+                color={active ? '#4F46E5' : '#9CA3AF'}
+                strokeWidth={active ? 2.5 : 1.8}
               />
-
-              <Icon
-                size={24}
-                className={cn(
-                  'transition-colors duration-200',
-                  active ? 'text-[#4F46E5]' : 'text-[#9CA3AF]'
-                )}
-              />
-              <span
-                className={cn(
-                  'text-[11px] leading-none transition-colors duration-200',
-                  active ? 'font-bold text-[#4F46E5]' : 'font-semibold text-[#9CA3AF]'
-                )}
-              >
+              <span style={{
+                fontSize: '10px',
+                fontWeight: active ? 700 : 600,
+                color: active ? '#4F46E5' : '#9CA3AF',
+                letterSpacing: '0.01em',
+                lineHeight: 1,
+              }}>
                 {item.label}
               </span>
             </button>

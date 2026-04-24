@@ -58,30 +58,46 @@ interface AccesoRapidoProps {
 
 export default function AccesoRapido({ onNavegar }: AccesoRapidoProps) {
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div style={{
+      display: 'grid', gridTemplateColumns: '1fr 1fr',
+      gap: '12px',
+    }}>
       {ITEMS.map((item) => {
         const Icon = item.icon
         return (
           <button
             key={item.id}
             onClick={() => onNavegar(item.ruta)}
-            className="flex flex-col gap-2 rounded-[20px] px-4 py-[18px] cursor-pointer transition-transform duration-150 active:scale-[0.95] text-left"
             style={{
-              backgroundColor: item.bgColor,
+              background: item.bgColor,
+              border: 'none',
+              borderRadius: '20px',
+              padding: '20px 16px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              gap: '12px',
+              cursor: 'pointer',
               boxShadow: `0 2px 8px ${item.shadowColor}`,
+              transition: 'transform 0.15s',
+              textAlign: 'left',
             }}
           >
-            {/* Icon container */}
-            <div
-              className="w-11 h-11 rounded-[12px] flex items-center justify-center"
-              style={{ backgroundColor: 'rgba(255,255,255,0.7)' }}
-            >
-              <Icon size={24} style={{ color: item.iconColor }} />
+            {/* Círculo del ícono */}
+            <div style={{
+              width: '48px', height: '48px',
+              background: 'rgba(255,255,255,0.75)',
+              borderRadius: '14px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <Icon size={24} color={item.iconColor} strokeWidth={2} />
             </div>
-            <span
-              className="text-[14px] font-extrabold mt-auto"
-              style={{ color: item.iconColor }}
-            >
+            {/* Texto */}
+            <span style={{
+              fontSize: '15px', fontWeight: 800,
+              color: item.iconColor, lineHeight: '1',
+            }}>
               {item.label}
             </span>
           </button>

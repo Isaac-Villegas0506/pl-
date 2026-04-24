@@ -19,18 +19,23 @@ export default function BuscadorHome({ onSearch }: BuscadorHomeProps) {
   return (
     <form onSubmit={handleSubmit}>
       <div
-        className="flex items-center gap-2.5 bg-white rounded-[16px] px-4 h-[50px] transition-all duration-200"
         style={{
+          display: 'flex', alignItems: 'center', gap: '10px',
+          background: 'white',
+          borderRadius: '16px',
+          padding: '0 16px',
+          height: '50px',
           border: isFocused ? '1.5px solid #4F46E5' : '1.5px solid #E5E7EB',
           boxShadow: isFocused
             ? '0 0 0 3px rgba(79,70,229,0.10), 0 2px 8px rgba(0,0,0,0.04)'
             : '0 2px 8px rgba(0,0,0,0.04)',
+          transition: 'border-color 0.2s, box-shadow 0.2s',
         }}
       >
-        <button type="submit" className="shrink-0 cursor-pointer">
+        <button type="submit" style={{ flexShrink: 0, cursor: 'pointer', background: 'none', border: 'none', display: 'flex' }}>
           <Search
             size={18}
-            style={{ color: isFocused ? '#4F46E5' : '#9CA3AF', transition: 'color 0.2s' }}
+            color={isFocused ? '#4F46E5' : '#9CA3AF'}
           />
         </button>
         <input
@@ -40,8 +45,13 @@ export default function BuscadorHome({ onSearch }: BuscadorHomeProps) {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder="Buscar libros, autores..."
-          className="flex-1 bg-transparent border-none outline-none text-[15px] font-medium text-[#111827] placeholder:text-[#D1D5DB]"
-          style={{ fontFamily: 'var(--font-nunito)' }}
+          style={{
+            flex: 1, border: 'none', outline: 'none',
+            background: 'transparent',
+            fontSize: '15px', fontWeight: 500, color: '#111827',
+            fontFamily: 'var(--font-nunito)',
+            minWidth: 0,
+          }}
         />
       </div>
     </form>

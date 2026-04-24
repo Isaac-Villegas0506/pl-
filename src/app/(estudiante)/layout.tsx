@@ -24,7 +24,11 @@ export default async function EstudianteLayout({
   if (perfil?.rol === 'profesor') redirect('/profesor/dashboard')
 
   return (
-    <div className="min-h-screen bg-[#F0F4F8] pb-20">
+    <div style={{
+      minHeight: '100vh',
+      background: '#F5F3FF',
+      paddingBottom: '80px',
+    }}>
       {children}
       <BottomNav />
     </div>

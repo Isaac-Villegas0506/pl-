@@ -167,44 +167,61 @@ export default function ExplorarContent({
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F0F4F8]">
-      {/* HEADER STICKY */}
-      <div className="sticky top-0 z-30 bg-white px-4 pt-4 pb-3 border-b border-[#F1F5F9]">
-        {/* Fila 1: Título + Search icon */}
-        <div className="flex items-center justify-between max-w-md mx-auto">
-          <h1 className="text-2xl font-bold text-[#0F172A]">Explorar</h1>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#F5F3FF' }}>
+      {/* HEADER STICKY — incluye búsqueda y filtros */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 40,
+        background: 'white',
+        borderBottom: '1px solid #F1F5F9',
+      }}>
+        {/* Fila del título */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '20px 16px 12px',
+          maxWidth: '480px', margin: '0 auto',
+        }}>
+          <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#111827' }}>Explorar</h1>
           <button
             onClick={() => searchInputRef.current?.focus()}
-            className="cursor-pointer text-[#0F172A]"
+            style={{ cursor: 'pointer', background: 'none', border: 'none', display: 'flex', alignItems: 'center' }}
           >
-            <Search size={22} />
+            <Search size={22} color="#111827" strokeWidth={2} />
           </button>
         </div>
 
-        {/* Fila 2: Búsqueda */}
-        <div className="mt-3 max-w-md mx-auto">
-          <div className="flex items-center gap-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] px-3.5 py-[11px]">
-            <Search size={16} className="text-[#94A3B8] shrink-0" />
+        {/* Barra de búsqueda */}
+        <div style={{ padding: '0 16px 12px', maxWidth: '480px', margin: '0 auto' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            background: '#F8FAFC',
+            border: '1.5px solid #E5E7EB',
+            borderRadius: '14px',
+            padding: '0 14px',
+            height: '46px',
+          }}>
+            <Search size={16} color="#9CA3AF" strokeWidth={1.5} style={{ flexShrink: 0 }} />
             <input
               ref={searchInputRef}
               type="text"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Buscar libros, autores..."
-              className="flex-1 bg-transparent border-none outline-none text-sm text-[#0F172A] placeholder:text-[#94A3B8]"
+              style={{
+                flex: 1, border: 'none', outline: 'none',
+                background: 'transparent', fontSize: '14px',
+                color: '#111827', fontFamily: 'inherit',
+              }}
             />
             {busqueda && (
-              <button onClick={clearSearch} className="cursor-pointer">
-                <XCircle size={16} className="text-[#94A3B8]" />
+              <button onClick={clearSearch} style={{ cursor: 'pointer', background: 'none', border: 'none', display: 'flex' }}>
+                <XCircle size={16} color="#9CA3AF" />
               </button>
             )}
           </div>
         </div>
-      </div>
 
-      {/* BARRA DE FILTROS STICKY */}
-      <div className="sticky top-[108px] z-20 bg-white px-4 pb-3 pt-2">
-        <div className="max-w-md mx-auto">
+        {/* Chips de filtros en scroll horizontal */}
+        <div style={{ padding: '0 16px 14px', maxWidth: '480px', margin: '0 auto' }}>
           <FiltrosBarra
             filtros={filtros}
             filtrosOpciones={filtrosOpciones}
@@ -216,8 +233,8 @@ export default function ExplorarContent({
       </div>
 
       {/* RESULTADOS */}
-      <div className="flex-1 px-4 mt-3 pb-8">
-        <div className="max-w-md mx-auto">
+      <div style={{ flex: 1, padding: '12px 16px 24px' }}>
+        <div style={{ maxWidth: '480px', margin: '0 auto' }}>
           {/* Contador */}
           {!isLoading && !error && (
             <p className="text-sm text-[#94A3B8] mb-3">
@@ -256,7 +273,7 @@ export default function ExplorarContent({
 
           {/* Lista */}
           {!isLoading && !error && lecturas.length > 0 && (
-            <div className="space-y-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {lecturas.map((lectura) => (
                 <LecturaCard
                   key={lectura.id}

@@ -1,149 +1,260 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
-import { BookOpen, Mail, Lock, Eye, EyeOff, AlertCircle, LogIn, Loader2 } from 'lucide-react'
-import InputField from '@/components/ui/InputField'
+import { useRouter } from 'next/navigation'
+import { BookOpen, Mail, Lock, Eye, EyeOff, AlertCircle, LogIn } from 'lucide-react'
 import { loginAction } from './actions'
 
-const ERROR_MESSAGES: Record<string, string> = {
-  credenciales: 'Credenciales incorrectas. Verifica tu email y contraseña.',
-  desactivado:  'Tu cuenta está desactivada. Contacta al administrador.',
-  inesperado:   'Ocurrió un error inesperado. Intenta nuevamente.',
-}
-
 export default function LoginForm() {
-  const [email, setEmail]             = useState('')
-  const [password, setPassword]       = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading]     = useState(false)
-  const [error, setError]             = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email.trim() || !password.trim() || !isValidEmail(email)) {
-      setError('credenciales')
+    if (!email || !password) {
+      setError('Completa todos los campos')
       return
     }
     setIsLoading(true)
     setError(null)
-    try {
-      const result = await loginAction(email, password)
-      if (!result.success) { setError(result.error); setIsLoading(false) }
-    } catch {
+    const result = await loginAction(email, password)
+    if (result && !result.success) {
+      const msgs: Record<string, string> = {
+        credenciales: 'Credenciales incorrectas. Verifica tu email y contraseña.',
+        desactivado: 'Tu cuenta está desactivada. Contacta al administrador.',
+        inesperado: 'Ocurrió un error inesperado. Intenta nuevamente.',
+      }
+      setError(msgs[result.error] ?? msgs.inesperado)
       setIsLoading(false)
     }
   }
 
   return (
-    <div
-      className="w-full max-w-[400px] animate-slide-up"
-      style={{
-        background: 'white',
+    // FONDO GENERAL
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(160deg, #EEF2FF 0%, #F5F3FF 50%, #FAF5FF 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px 20px',
+    }}>
+      {/* CARD PRINCIPAL */}
+      <div style={{
+        background: '#FFFFFF',
         borderRadius: '28px',
         boxShadow: '0 20px 60px rgba(79,70,229,0.12), 0 4px 16px rgba(0,0,0,0.06)',
-        padding: '36px 28px',
-      }}
-    >
-      {/* Logo */}
-      <div className="flex flex-col items-center">
-        <div
-          className="w-[88px] h-[88px] rounded-[22px] flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+        padding: '40px 28px 32px',
+        width: '100%',
+        maxWidth: '400px',
+        animation: 'slideUp 0.4s cubic-bezier(0.16,1,0.3,1)',
+      }}>
+
+        {/* LOGO */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{
+            width: '88px', height: '88px',
+            background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+            borderRadius: '22px',
             boxShadow: '0 8px 24px rgba(79,70,229,0.35)',
-          }}
-        >
-          <BookOpen size={40} className="text-white" />
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <BookOpen size={40} color="white" strokeWidth={1.5} />
+          </div>
+          <span style={{
+            fontSize: '10px', fontWeight: '700', letterSpacing: '0.15em',
+            color: '#9CA3AF', marginTop: '10px', textTransform: 'uppercase',
+          }}>
+            Plan de Lectura
+          </span>
         </div>
-        <p className="text-[10px] font-bold tracking-[0.15em] text-[#6B7280] mt-2 uppercase">
-          Plan de Lectura
-        </p>
-      </div>
 
-      {/* Title */}
-      <h1
-        className="text-[26px] font-extrabold text-[#111827] text-center mt-5 leading-[1.2]"
-        style={{ fontFamily: 'var(--font-playfair)' }}
-      >
-        ¡Bienvenido a tu biblioteca!
-      </h1>
-      <p className="text-sm text-[#6B7280] text-center mt-2 leading-relaxed">
-        Ingresa tus credenciales para continuar explorando
-      </p>
+        {/* TÍTULOS */}
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <h1 style={{
+            fontFamily: 'var(--font-playfair, serif)',
+            fontSize: '26px', fontWeight: '800',
+            color: '#111827', lineHeight: '1.2',
+          }}>
+            ¡Bienvenido a tu biblioteca!
+          </h1>
+          <p style={{
+            fontSize: '14px', color: '#6B7280',
+            marginTop: '8px', lineHeight: '1.5',
+          }}>
+            Ingresa tus credenciales para continuar explorando
+          </p>
+        </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
-        <InputField
-          label="Correo electrónico"
-          type="email"
-          placeholder="ejemplo@escuela.edu"
-          value={email}
-          onChange={setEmail}
-          icon={Mail}
-          disabled={isLoading}
-        />
+        {/* FORMULARIO */}
+        <form onSubmit={handleSubmit} style={{
+          marginTop: '28px',
+          display: 'flex', flexDirection: 'column', gap: '16px',
+        }}>
 
-        <InputField
-          label="Contraseña"
-          type={showPassword ? 'text' : 'password'}
-          placeholder="••••••••"
-          value={password}
-          onChange={setPassword}
-          icon={Lock}
-          disabled={isLoading}
-          rightIcon={
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="text-[#9CA3AF] hover:text-[#4F46E5] transition-colors cursor-pointer"
-              tabIndex={-1}
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          }
-        />
+          {/* CAMPO EMAIL */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{
+              fontSize: '14px', fontWeight: '600', color: '#374151',
+            }}>
+              Correo electrónico
+            </label>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              background: '#FAFAFA',
+              border: '1.5px solid #E5E7EB',
+              borderRadius: '14px',
+              padding: '0 16px',
+              height: '54px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+              transition: 'border-color 0.2s, box-shadow 0.2s',
+            }}>
+              <Mail size={18} color="#9CA3AF" strokeWidth={1.5} style={{ flexShrink: 0 }} />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ejemplo@escuela.edu"
+                style={{
+                  flex: 1, border: 'none', outline: 'none',
+                  background: 'transparent',
+                  fontSize: '15px', color: '#111827',
+                  fontFamily: 'inherit',
+                  minWidth: 0,
+                }}
+              />
+            </div>
+          </div>
 
-        {/* Error banner */}
-        {error && (
-          <div
-            className="flex items-start gap-2 rounded-[12px] px-3.5 py-3"
-            style={{
+          {/* CAMPO CONTRASEÑA */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{
+              fontSize: '14px', fontWeight: '600', color: '#374151',
+            }}>
+              Contraseña
+            </label>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              background: '#FAFAFA',
+              border: '1.5px solid #E5E7EB',
+              borderRadius: '14px',
+              padding: '0 16px',
+              height: '54px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+            }}>
+              <Lock size={18} color="#9CA3AF" strokeWidth={1.5} style={{ flexShrink: 0 }} />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="- - - - - - - - "
+                style={{
+                  flex: 1, border: 'none', outline: 'none',
+                  background: 'transparent',
+                  fontSize: '15px', color: '#111827',
+                  fontFamily: 'inherit',
+                  minWidth: 0,
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  padding: '4px', display: 'flex', alignItems: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                {showPassword
+                  ? <EyeOff size={18} color="#9CA3AF" />
+                  : <Eye size={18} color="#9CA3AF" />}
+              </button>
+            </div>
+          </div>
+
+          {/* ERROR */}
+          {error && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: '8px',
               background: '#FFF1F2',
               border: '1px solid #FECDD3',
+              borderRadius: '12px',
+              padding: '12px 14px',
+            }}>
+              <AlertCircle size={16} color="#F43F5E" style={{ flexShrink: 0, marginTop: '1px' }} />
+              <span style={{ fontSize: '13px', color: '#BE123C', lineHeight: '1.4' }}>
+                {error}
+              </span>
+            </div>
+          )}
+
+          {/* BOTÓN ENTRAR */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              height: '54px',
+              background: isLoading
+                ? '#A5B4FC'
+                : 'linear-gradient(135deg, #4F46E5, #6D28D9)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '14px',
+              fontSize: '16px', fontWeight: '700',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              boxShadow: isLoading ? 'none' : '0 4px 14px rgba(79,70,229,0.35)',
+              transition: 'all 0.2s',
+              fontFamily: 'inherit',
+              marginTop: '4px',
             }}
           >
-            <AlertCircle size={16} className="text-[#F43F5E] shrink-0 mt-0.5" />
-            <p className="text-sm text-[#BE123C]">{ERROR_MESSAGES[error] ?? ERROR_MESSAGES.inesperado}</p>
-          </div>
-        )}
+            {isLoading ? (
+              <>
+                <svg width="18" height="18" viewBox="0 0 24 24" style={{ animation: 'spin 0.8s linear infinite' }}>
+                  <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3"
+                    fill="none" strokeOpacity="0.3" />
+                  <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3"
+                    fill="none" strokeLinecap="round" />
+                </svg>
+                Ingresando...
+              </>
+            ) : (
+              <>
+                Entrar
+                <LogIn size={18} strokeWidth={2} />
+              </>
+            )}
+          </button>
 
-        {/* Submit button */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full h-[54px] rounded-[14px] text-white font-bold text-base flex items-center justify-center gap-2 mt-2 transition-all duration-200 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed active:scale-[0.97]"
-          style={{
-            background: 'linear-gradient(135deg, #4F46E5, #6D28D9)',
-            boxShadow: isLoading ? 'none' : '0 4px 14px rgba(79,70,229,0.35)',
-          }}
-        >
-          {isLoading ? (
-            <><Loader2 size={18} className="animate-spin" /> Ingresando...</>
-          ) : (
-            <><span>Entrar</span><LogIn size={18} /></>
-          )}
-        </button>
-
-        {/* Forgot password */}
-        <p className="text-center mt-2">
-          <Link href="/recuperar" className="text-sm font-semibold text-[#4F46E5] hover:underline">
+          {/* LINK RECUPERAR */}
+          <a
+            href="/recuperar"
+            style={{
+              display: 'block', textAlign: 'center',
+              fontSize: '14px', fontWeight: '600', color: '#4F46E5',
+              textDecoration: 'none', marginTop: '4px',
+            }}
+          >
             ¿Olvidaste tu contraseña?
-          </Link>
-        </p>
-      </form>
+          </a>
+        </form>
+      </div>
+
+      {/* Keyframes en style tag */}
+      <style>{`
+        @keyframes slideUp {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   )
 }

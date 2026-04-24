@@ -53,7 +53,7 @@ export default function LecturaDetalleContent({
     : false
 
   return (
-    <div className="min-h-screen bg-[#F0F4F8] pb-32">
+    <div style={{ minHeight: '100vh', background: '#F5F3FF' }}>
       {/* HERO IMAGE */}
       <div className="relative h-[280px] w-full">
         {lectura.portada_url ? (
@@ -94,7 +94,16 @@ export default function LecturaDetalleContent({
       </div>
 
       {/* CONTENT CARD */}
-      <div className="relative -mt-6 bg-white rounded-t-[24px] px-5 pt-6 pb-4 z-10">
+      <div style={{
+        background: 'white',
+        borderRadius: '24px 24px 0 0',
+        marginTop: '-24px',
+        padding: '24px 20px',
+        paddingBottom: '120px',
+        position: 'relative',
+        zIndex: 2,
+        minHeight: 'calc(100vh - 256px)',
+      }}>
         {/* Badge */}
         {lectura.materias && (
           <Badge variant="primary" size="sm">{lectura.materias.nombre}</Badge>
@@ -208,9 +217,18 @@ export default function LecturaDetalleContent({
       </div>
 
       {/* FIXED ACTION BUTTONS */}
-      <div className="fixed bottom-16 left-0 right-0 z-40">
-        <div className="max-w-md mx-auto px-4 pb-3">
-          <div className="bg-white/95 backdrop-blur-sm pt-3 border-t border-[#F1F5F9] rounded-t-[12px]">
+      <div style={{
+        position: 'fixed',
+        bottom: '64px',
+        left: 0, right: 0,
+        zIndex: 50,
+        background: 'rgba(255,255,255,0.97)',
+        backdropFilter: 'blur(16px)',
+        borderTop: '1px solid #F1F5F9',
+        padding: '12px 20px',
+      }}>
+        <div style={{ maxWidth: '480px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
             {yaCompleto ? (
               <div className="space-y-2">
                 {totalPreguntas > 0 && asignacion && (
@@ -247,7 +265,6 @@ export default function LecturaDetalleContent({
                 Leer ahora
               </Button>
             )}
-          </div>
         </div>
       </div>
     </div>

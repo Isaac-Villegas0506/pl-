@@ -114,3 +114,38 @@ a, button { transition: all 0.15s cubic-bezier(0.16,1,0.3,1); }
 .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .line-clamp-4 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; }
+
+/* ─── FIXES CRÍTICOS DE PLATAFORMA ─────────────────────────────────────── */
+
+/* Fix para inputs en iOS que los hace cuadrados */
+input, textarea, select, button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Prevenir zoom en inputs en iOS */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    font-size: 16px;
+  }
+}
+
+/* Fix para que las imágenes con border-radius funcionen en Safari */
+img {
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+}
+
+/* Asegurar que overflow:hidden respete border-radius en Safari */
+.overflow-hidden {
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
+}
+
+/* Animación spin global */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
