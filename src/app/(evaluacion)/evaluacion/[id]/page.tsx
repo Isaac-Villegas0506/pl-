@@ -15,12 +15,13 @@ export default async function EvaluacionIntroPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: usuario } = await supabase
+  const { data: usuarioRaw } = await supabase
     .from('usuarios')
     .select('id')
     .eq('auth_id', user.id)
     .single()
 
+  const usuario = usuarioRaw as { id: string } | null
   if (!usuario) redirect('/login')
 
   // Carga paralela

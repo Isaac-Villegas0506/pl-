@@ -1,15 +1,17 @@
 'use server'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { createClient } from '@/lib/supabase/server'
 import type { GuardarRespuestaInput } from './types'
+
+// ─── CREAR INTENTO ───────────────────────────────────────────────────────────
 
 export async function crearIntentoAction(
   asignacionId: string,
   estudianteId: string
 ): Promise<{ success: boolean; intentoId: string; error?: string }> {
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
 
-  // Verificar si ya existe un intento en progreso
   const { data: existente } = await supabase
     .from('intentos_lectura')
     .select('id')
@@ -18,12 +20,11 @@ export async function crearIntentoAction(
     .eq('estado', 'en_progreso')
     .maybeSingle()
 
-  if (existente) {
-    return { success: true, intentoId: existente.id }
+  if (existente?.id) {
+    return { success: true, intentoId: existente.id as string }
   }
 
-  // Crear nuevo intento
-  const { data, error } = await supabase
+  const { data: nuevo, error } = await supabase
     .from('intentos_lectura')
     .insert({
       asignacion_id: asignacionId,
@@ -34,20 +35,21 @@ export async function crearIntentoAction(
     .select('id')
     .single()
 
-  if (error || !data) {
+  if (error || !nuevo?.id) {
     return { success: false, intentoId: '', error: error?.message }
   }
 
-  return { success: true, intentoId: data.id }
+  return { success: true, intentoId: nuevo.id as string }
 }
+
+// ─── GUARDAR RESPUESTA ───────────────────────────────────────────────────────
 
 export async function guardarRespuestaAction(
   datos: GuardarRespuestaInput
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
   const { intentoId, preguntaId, opcionId, textoRespuesta } = datos
 
-  // Obtener info de la pregunta
   const { data: pregunta } = await supabase
     .from('preguntas')
     .select('tipo, puntaje')
@@ -69,11 +71,10 @@ export async function guardarRespuestaAction(
         .eq('id', opcionId)
         .single()
 
-      esCorrecta = opcion?.es_correcta ?? false
-      puntajeObtenido = esCorrecta ? pregunta.puntaje : 0
+      esCorrecta = (opcion?.es_correcta as boolean) ?? false
+      puntajeObtenido = esCorrecta ? (pregunta.puntaje as number) : 0
     }
   }
-  // Para 'abierta': es_correcta = null, puntaje_obtenido = 0
 
   const { error } = await supabase
     .from('respuestas_estudiante')
@@ -96,42 +97,38 @@ export async function guardarRespuestaAction(
   return { success: true }
 }
 
+// ─── FINALIZAR INTENTO ───────────────────────────────────────────────────────
+
 export async function finalizarIntentoAction(
   intentoId: string,
-  estudianteId: string
+  _estudianteId: string
 ): Promise<{ success: boolean; nota: number; estado: string; error?: string }> {
-  const supabase = await createClient()
+  const supabase = (await createClient()) as any
 
-  // Obtener todas las respuestas del intento
   const { data: respuestas } = await supabase
     .from('respuestas_estudiante')
     .select('puntaje_obtenido, pregunta_id, preguntas(tipo, puntaje)')
     .eq('intento_id', intentoId)
 
-  if (!respuestas || respuestas.length === 0) {
+  const rows = (respuestas ?? []) as Array<{
+    puntaje_obtenido: number | null
+    preguntas: { tipo: string; puntaje: number } | null
+  }>
+
+  if (rows.length === 0) {
     return { success: false, nota: 0, estado: 'en_progreso', error: 'Sin respuestas' }
   }
 
-  const puntajeObtenido = respuestas.reduce(
-    (acc, r) => acc + (r.puntaje_obtenido ?? 0), 0
-  )
-
-  const puntajeTotal = respuestas.reduce((acc, r) => {
-    const p = r.preguntas as { tipo: string; puntaje: number } | null
-    return acc + (p?.puntaje ?? 0)
-  }, 0)
-
-  const hayPreguntasAbiertas = respuestas.some((r) => {
-    const p = r.preguntas as { tipo: string; puntaje: number } | null
-    return p?.tipo === 'abierta'
-  })
+  const puntajeObtenido = rows.reduce((acc, r) => acc + (r.puntaje_obtenido ?? 0), 0)
+  const puntajeTotal = rows.reduce((acc, r) => acc + (r.preguntas?.puntaje ?? 0), 0)
+  const hayAbiertas = rows.some((r) => r.preguntas?.tipo === 'abierta')
 
   const notaAutomatica =
     puntajeTotal > 0
       ? Math.round(((puntajeObtenido / puntajeTotal) * 20) * 100) / 100
       : 0
 
-  const nuevoEstado = hayPreguntasAbiertas ? 'revisando' : 'completado'
+  const nuevoEstado = hayAbiertas ? 'revisando' : 'completado'
 
   const { error } = await supabase
     .from('intentos_lectura')

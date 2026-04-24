@@ -14,16 +14,18 @@ export default async function ResultadoPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: usuario } = await supabase
+  const { data: usuarioRaw } = await supabase
     .from('usuarios')
     .select('id')
     .eq('auth_id', user.id)
     .single()
 
+  const usuario = usuarioRaw as { id: string } | null
   if (!usuario) redirect('/login')
 
   // Buscar intento completado o en revisión
-  const intento = await getIntentoCompletado(supabase, id, usuario.id)
+  const intentoRaw = await getIntentoCompletado(supabase, id, usuario.id)
+  const intento = intentoRaw as { id: string; estado: string; nota_automatica: number | null } | null
   if (!intento) redirect(`/evaluacion/${id}`)
 
   // Cargar asignación para totalPreguntas
