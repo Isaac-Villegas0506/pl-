@@ -5,10 +5,9 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
   ChevronLeft, Bookmark, BookOpen, User, GraduationCap,
-  FileText, Calendar, HelpCircle, Download, Clock,
+  FileText, HelpCircle, Download, Clock,
 } from 'lucide-react'
-import { Badge, ProgressBar, Button } from '@/components/ui'
-import { formatFecha, obtenerGradientePortada } from '@/lib/utils'
+import { obtenerGradientePortada, formatFecha } from '@/lib/utils'
 import { toggleFavoritoAction } from './actions'
 import type { LecturaDetalleCompleta, ProgresoLectura, AsignacionDetalle } from './types'
 
@@ -32,7 +31,6 @@ export default function LecturaDetalleContent({
   const router = useRouter()
   const [favoritoLocal, setFavoritoLocal] = useState(esFavorito)
   const [isTogglingFav, setIsTogglingFav] = useState(false)
-  const [descExpand, setDescExpand] = useState(false)
 
   async function handleToggleFavorito() {
     if (isTogglingFav) return
@@ -154,12 +152,12 @@ export default function LecturaDetalleContent({
         </button>
       </div>
 
-      {/* CONTENT CARD - REDISEÑADO FIX 2 */}
+      {/* CONTENT CARD */}
       <div style={{
         background: 'white',
         borderRadius: '28px 28px 0 0',
         marginTop: '-32px',
-        padding: '20px 20px 120px',
+        padding: '28px 20px calc(144px + env(safe-area-inset-bottom, 0px))',
         position: 'relative',
         zIndex: 3,
         minHeight: 'calc(100vh - 260px)',
@@ -179,7 +177,7 @@ export default function LecturaDetalleContent({
             fontSize: '11px', fontWeight: '700', borderRadius: '7px',
             padding: '3px 10px', letterSpacing: '0.04em',
             textTransform: 'uppercase',
-            background: '#EEF2FF', // Default/Primary color
+            background: '#EEF2FF',
             color: '#4F46E5',
           }}>
             <span style={{
@@ -211,7 +209,6 @@ export default function LecturaDetalleContent({
         <div style={{
           display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px',
         }}>
-          {/* Chip: Grado */}
           {lectura.grados && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: '5px',
@@ -224,7 +221,6 @@ export default function LecturaDetalleContent({
               </span>
             </div>
           )}
-          {/* Chip: Páginas (si existe) */}
           {lectura.paginas_total && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: '5px',
@@ -236,7 +232,6 @@ export default function LecturaDetalleContent({
               </span>
             </div>
           )}
-          {/* Chip: Tiempo estimado (si existe) */}
           {lectura.tiempo_lectura_min && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: '5px',
@@ -272,7 +267,7 @@ export default function LecturaDetalleContent({
           </div>
         )}
 
-        {/* Assignment info (si existe) */}
+        {/* Assignment info */}
         {asignacion && (
           <div style={{
             background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '16px',
@@ -317,14 +312,13 @@ export default function LecturaDetalleContent({
         bottom: 0,
         left: 0,
         right: 0,
-        zIndex: 50,
+        zIndex: 51,
         padding: '12px 20px',
         paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
         background: 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))',
       }}>
         <div style={{ display: 'flex', gap: '10px', maxWidth: '480px', margin: '0 auto' }}>
 
-          {/* BOTÓN PRINCIPAL — Continuar/Empezar/Evaluación */}
           <button
             onClick={() => {
               if (yaCompleto && totalPreguntas > 0 && asignacion) {
@@ -359,7 +353,6 @@ export default function LecturaDetalleContent({
             </span>
           </button>
 
-          {/* BOTÓN SECUNDARIO — Descargar */}
           {pdfUrl && (
             <button
               onClick={() => window.open(pdfUrl, '_blank')}

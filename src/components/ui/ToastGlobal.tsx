@@ -48,7 +48,7 @@ export default function ToastGlobal() {
 
   return (
     <div style={{
-      position: 'fixed', top: 12, left: 12, right: 12, zIndex: 99998,
+      position: 'fixed', top: 12, left: 12, right: 12, zIndex: 400,
       display: 'flex', flexDirection: 'column', gap: 8, pointerEvents: 'none',
     }}>
       {toasts.map(t => {

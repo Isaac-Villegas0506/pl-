@@ -66,7 +66,7 @@ export default function FiltroModal({
     <div
       onClick={onClose}
       style={{
-        position: 'fixed', inset: 0, zIndex: 9998,
+        position: 'fixed', inset: 0, zIndex: 200,
         background: 'rgba(0,0,0,0.5)',
         backdropFilter: 'blur(4px)',
         WebkitBackdropFilter: 'blur(4px)',

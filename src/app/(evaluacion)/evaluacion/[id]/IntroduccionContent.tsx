@@ -110,7 +110,7 @@ export default function IntroduccionContent({
         background: 'white',
         borderRadius: '24px 24px 0 0',
         marginTop: '-20px',
-        padding: '28px 20px 140px',
+        padding: '28px 20px calc(144px + env(safe-area-inset-bottom, 0px))',
         boxShadow: '0 -4px 20px rgba(0,0,0,0.08)',
         position: 'relative', zIndex: 4,
         minHeight: 'calc(100vh - 200px)',
@@ -202,7 +202,7 @@ export default function IntroduccionContent({
 
       {/* BOTÓN FIJO */}
       <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 51,
         background: 'rgba(255,255,255,0.97)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',

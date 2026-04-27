@@ -204,7 +204,7 @@ export default function ConfiguracionContent({ usuario }: { usuario: UsuarioPerf
       {/* MODAL CERRAR SESIÓN */}
       {showLogoutModal && (
         <div style={{
-          position: 'fixed', inset: 0, zIndex: 100,
+          position: 'fixed', inset: 0, zIndex: 200,
           background: 'rgba(0,0,0,0.5)',
           display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
         }}>

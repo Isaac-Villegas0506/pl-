@@ -5,12 +5,11 @@ import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { 
   ChevronLeft, Bookmark, Minus, Plus, Sun, Moon, ChevronRight,
-  Search, ZoomIn, ZoomOut, AlertCircle 
+  Search, ZoomIn, ZoomOut, AlertCircle, Trophy
 } from 'lucide-react'
 
 const PDFViewer = dynamic(() => import('./PDFViewer'), { ssr: false })
 import { createClient } from '@/lib/supabase/client'
-import CompletadoModal from '@/components/lector/CompletadoModal'
 import { registrarActividadHoyAction } from '../../../perfil/actions'
 
 function SpinnerCarga() {
@@ -285,14 +284,14 @@ export default function LectorPDFContent({
     <div style={{
       position: 'fixed',
       inset: 0,
-      zIndex: 200,
+      zIndex: 300,
       background: bgColor,
       display: 'flex',
       flexDirection: 'column',
     }}>
       {/* HEADER FIJO */}
       <div style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 310,
         height: '60px',
         background: 'linear-gradient(135deg, #0F0C29, #302B63)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
@@ -439,7 +438,7 @@ export default function LectorPDFContent({
         bottom: '16px',
         left: '16px',
         right: '16px',
-        zIndex: 100,
+        zIndex: 310,
         background: modoOscuro ? 'rgba(30, 30, 50, 0.92)' : 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
@@ -546,8 +545,8 @@ export default function LectorPDFContent({
           borderRadius: '13px',
           background: zoomPanelAbierto
             ? 'linear-gradient(135deg, #4F46E5, #6D28D9)'
-            : 'rgba(255,255,255,0.12)',
-          border: 'none',
+            : 'rgba(15, 12, 41, 0.9)',
+          border: '1px solid rgba(255,255,255,0.1)',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -652,14 +651,123 @@ export default function LectorPDFContent({
       )}
 
       {/* COMPLETADO MODAL */}
-      <CompletadoModal
-        isOpen={showCompletado}
-        titulo={lecturaTitulo}
-        tienePreguntas={totalPreguntas > 0}
-        asignacionId={asignacionId}
-        onEvaluar={() => asignacionId && router.push(`/evaluacion/${asignacionId}`)}
-        onVolver={() => router.push('/inicio')}
-      />
+      {/* MODAL ¡LECTURA COMPLETADA! */}
+      {showCompletado && (
+        <>
+          {/* Overlay oscuro */}
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 200,
+            background: 'rgba(0,0,0,0.65)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+          }} />
+
+          {/* Sheet centrado */}
+          <div style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 201,
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+          }}>
+            <div style={{
+              width: '100%',
+              maxWidth: '480px',
+              background: 'white',
+              borderRadius: '28px 28px 0 0',
+              padding: '36px 24px',
+              paddingBottom: 'calc(36px + env(safe-area-inset-bottom, 0px))',
+              animation: 'slideUp 0.35s cubic-bezier(0.16,1,0.3,1)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+            }}>
+
+              {/* Drag handle */}
+              <div style={{
+                width: '40px', height: '4px', borderRadius: '99px',
+                background: '#E5E7EB', marginBottom: '28px',
+              }} />
+
+              {/* Ícono trofeo */}
+              <div style={{
+                width: '88px', height: '88px', borderRadius: '24px',
+                background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                boxShadow: '0 10px 30px rgba(255,165,0,0.35)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: '20px',
+                transform: 'rotate(-3deg)',
+              }}>
+                <Trophy size={48} color="white" strokeWidth={2} />
+              </div>
+
+              {/* Título */}
+              <h2 style={{
+                fontFamily: 'var(--font-playfair, serif)',
+                fontSize: '26px', fontWeight: '900',
+                color: '#111827', lineHeight: '1.2',
+                marginBottom: '10px',
+              }}>
+                ¡Lectura Completada!
+              </h2>
+
+              {/* Subtexto */}
+              <p style={{
+                fontSize: '15px', color: '#6B7280',
+                lineHeight: '1.6', marginBottom: '6px',
+              }}>
+                Increíble trabajo. Has terminado de leer
+              </p>
+              <p style={{
+                fontSize: '16px', fontWeight: '700',
+                color: '#4F46E5', marginBottom: '32px',
+              }}>
+                "{lecturaTitulo}"
+              </p>
+
+              {/* Botón principal */}
+              <button
+                onClick={() => router.push('/inicio')}
+                style={{
+                  width: '100%', height: '54px',
+                  background: 'linear-gradient(135deg, #4F46E5, #6D28D9)',
+                  border: 'none', borderRadius: '16px',
+                  fontSize: '16px', fontWeight: '700', color: 'white',
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  boxShadow: '0 6px 20px rgba(79,70,229,0.35)',
+                  marginBottom: '10px',
+                }}
+              >
+                ¡Genial! Volver al inicio
+              </button>
+
+              {/* Botón secundario (si existe evaluación) */}
+              {(totalPreguntas > 0 && asignacionId) && (
+                <button
+                  onClick={() => router.push(`/evaluacion/${asignacionId}`)}
+                  style={{
+                    width: '100%', height: '50px',
+                    background: 'transparent',
+                    border: '1.5px solid #E5E7EB',
+                    borderRadius: '16px',
+                    fontSize: '15px', fontWeight: '700', color: '#374151',
+                    cursor: 'pointer', fontFamily: 'inherit',
+                  }}
+                >
+                  Ir a la evaluación
+                </button>
+              )}
+
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

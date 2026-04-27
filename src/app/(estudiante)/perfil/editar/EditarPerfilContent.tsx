@@ -125,7 +125,7 @@ export default function EditarPerfilContent({ usuario }: { usuario: UsuarioPerfi
   }, [avatarPreview])
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F9FAFB', paddingBottom: '100px' }}>
+    <div style={{ minHeight: '100vh', background: '#F9FAFB', paddingBottom: 'calc(144px + env(safe-area-inset-bottom, 0px))' }}>
       {/* HEADER */}
       <div style={{
         background: 'white',
@@ -325,7 +325,7 @@ export default function EditarPerfilContent({ usuario }: { usuario: UsuarioPerfi
 
       {/* BOTÓN GUARDAR FIJO */}
       <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 51,
         background: 'rgba(255,255,255,0.97)',
         backdropFilter: 'blur(16px)',
         borderTop: '1px solid #F1F5F9',

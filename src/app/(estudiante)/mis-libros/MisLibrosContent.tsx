@@ -125,7 +125,7 @@ export default function MisLibrosContent({
   }
 
   return (
-    <div style={{ paddingBottom: '76px' }}>
+    <div style={{ paddingBottom: 'calc(64px + env(safe-area-inset-bottom, 0px))' }}>
       <div style={{
         position: 'sticky', top: 0, zIndex: 40,
         background: 'rgba(245,243,255,0.97)',

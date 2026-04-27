@@ -115,7 +115,7 @@ export default function CambiarPasswordContent() {
         </h1>
       </div>
 
-      <div style={{ padding: '24px 20px 120px' }}>
+      <div style={{ padding: '24px 20px calc(144px + env(safe-area-inset-bottom, 0px))' }}>
         {/* INTRO */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{
@@ -224,7 +224,7 @@ export default function CambiarPasswordContent() {
 
       {/* BOTÓN GUARDAR FIJO */}
       <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 51,
         background: 'rgba(255,255,255,0.97)',
         backdropFilter: 'blur(16px)',
         borderTop: '1px solid #F1F5F9',
