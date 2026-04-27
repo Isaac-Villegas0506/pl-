@@ -14,7 +14,7 @@ export async function getLecturaDetalle(
       .select(`
         id, titulo, autor, descripcion, portada_url,
         paginas_total, anio_publicacion, es_global, estado,
-        materia_id, categoria_id, grado_id, tiempo_lectura_min,
+        materia_id, categoria_id, grado_id,
         materias ( nombre, color ),
         categorias ( nombre ),
         grados ( nombre )
@@ -53,7 +53,7 @@ export async function getLecturaDetalle(
       categorias: row.categorias as { nombre: string } | null,
       grados: row.grados as { nombre: string } | null,
       archivos,
-      tiempo_lectura_min: (row.tiempo_lectura_min as number | null) ?? null,
+      tiempo_lectura_min: null,
     }
   } catch {
     return null
