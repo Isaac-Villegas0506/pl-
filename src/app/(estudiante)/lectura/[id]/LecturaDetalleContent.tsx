@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
   ChevronLeft, Bookmark, BookOpen, User, GraduationCap,
-  FileText, Calendar, HelpCircle, Download,
+  FileText, Calendar, HelpCircle, Download, Clock,
 } from 'lucide-react'
 import { Badge, ProgressBar, Button } from '@/components/ui'
 import { formatFecha, obtenerGradientePortada } from '@/lib/utils'
@@ -154,123 +154,156 @@ export default function LecturaDetalleContent({
         </button>
       </div>
 
-      {/* CONTENT CARD */}
+      {/* CONTENT CARD - REDISEÑADO FIX 2 */}
       <div style={{
         background: 'white',
-        borderRadius: '24px 24px 0 0',
-        marginTop: '-28px',
-        padding: '24px 20px',
-        paddingBottom: '120px',
+        borderRadius: '28px 28px 0 0',
+        marginTop: '-32px',
+        padding: '20px 20px 120px',
         position: 'relative',
         zIndex: 3,
-        minHeight: 'calc(100vh - 272px)',
+        minHeight: 'calc(100vh - 260px)',
         boxShadow: '0 -4px 20px rgba(0,0,0,0.08)',
       }}>
-        {/* Badge */}
+
+        {/* Drag handle visual */}
+        <div style={{
+          width: '40px', height: '4px', borderRadius: '99px',
+          background: '#E5E7EB', margin: '0 auto 20px',
+        }} />
+
+        {/* Badge de materia */}
         {lectura.materias && (
-          <Badge variant="primary" size="sm">{lectura.materias.nombre}</Badge>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '5px',
+            fontSize: '11px', fontWeight: '700', borderRadius: '7px',
+            padding: '3px 10px', letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            background: '#EEF2FF', // Default/Primary color
+            color: '#4F46E5',
+          }}>
+            <span style={{
+              width: '5px', height: '5px', borderRadius: '50%',
+              background: '#4F46E5', flexShrink: 0,
+            }} />
+            {lectura.materias.nombre}
+          </span>
         )}
 
-        {/* Title */}
-        <h1 className="text-2xl font-bold text-[#0F172A] mt-2">{lectura.titulo}</h1>
+        {/* Título */}
+        <h1 style={{
+          fontFamily: 'var(--font-playfair, serif)',
+          fontSize: '22px', fontWeight: '800', color: '#111827',
+          lineHeight: '1.25', marginTop: '10px', marginBottom: '6px',
+        }}>
+          {lectura.titulo}
+        </h1>
 
-        {/* Author */}
-        <div className="flex items-center gap-1 mt-1">
-          <User size={14} className="text-[#475569]" />
-          <span className="text-base text-[#475569]">{lectura.autor}</span>
+        {/* Autor con icono */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
+          <User size={13} color="#9CA3AF" strokeWidth={2} />
+          <span style={{ fontSize: '14px', color: '#6B7280', fontWeight: '500' }}>
+            {lectura.autor}
+          </span>
         </div>
 
-        {/* Metadata */}
-        <div className="flex flex-wrap gap-3 mt-3">
+        {/* Fila de metadata (grado, páginas, tiempo) */}
+        <div style={{
+          display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px',
+        }}>
+          {/* Chip: Grado */}
           {lectura.grados && (
-            <div className="flex items-center gap-1 text-sm text-[#94A3B8]">
-              <GraduationCap size={14} />
-              <span>{lectura.grados.nombre}</span>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '5px',
+              background: '#F5F3FF', borderRadius: '99px',
+              padding: '5px 12px',
+            }}>
+              <GraduationCap size={13} color="#4F46E5" strokeWidth={2} />
+              <span style={{ fontSize: '12px', fontWeight: '600', color: '#4F46E5' }}>
+                {lectura.grados.nombre}
+              </span>
             </div>
           )}
+          {/* Chip: Páginas (si existe) */}
           {lectura.paginas_total && (
-            <div className="flex items-center gap-1 text-sm text-[#94A3B8]">
-              <FileText size={14} />
-              <span>{lectura.paginas_total} páginas</span>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '5px',
+              background: '#F0FDF4', borderRadius: '99px', padding: '5px 12px',
+            }}>
+              <FileText size={13} color="#10B981" strokeWidth={2} />
+              <span style={{ fontSize: '12px', fontWeight: '600', color: '#10B981' }}>
+                {lectura.paginas_total} págs.
+              </span>
             </div>
           )}
-          {lectura.anio_publicacion && (
-            <div className="flex items-center gap-1 text-sm text-[#94A3B8]">
-              <Calendar size={14} />
-              <span>{lectura.anio_publicacion}</span>
+          {/* Chip: Tiempo estimado (si existe) */}
+          {lectura.tiempo_lectura_min && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '5px',
+              background: '#FFF7ED', borderRadius: '99px', padding: '5px 12px',
+            }}>
+              <Clock size={13} color="#F59E0B" strokeWidth={2} />
+              <span style={{ fontSize: '12px', fontWeight: '600', color: '#F59E0B' }}>
+                {lectura.tiempo_lectura_min} min.
+              </span>
             </div>
           )}
         </div>
 
-        <div className="border-t border-[#F1F5F9] my-4" />
+        {/* Separador */}
+        <div style={{ height: '1px', background: '#F3F4F6', marginBottom: '20px' }} />
 
-        {/* Progress */}
-        {progreso && progreso.porcentaje > 0 && (
-          <>
-            <p className="text-sm font-semibold text-[#0F172A]">Tu progreso</p>
-            <div className="mt-2">
-              <ProgressBar value={progreso.porcentaje} color="primary" size="md" showLabel />
-            </div>
-            <div className="flex items-center justify-between mt-1 mb-1">
-              <span className="text-sm text-[#475569]">{progreso.porcentaje}% completado</span>
-              {progreso.paginas_total && (
-                <span className="text-sm text-[#94A3B8]">
-                  Pág. {progreso.pagina_actual} de {progreso.paginas_total}
-                </span>
-              )}
-            </div>
-            <div className="border-t border-[#F1F5F9] my-4" />
-          </>
-        )}
-
-        {/* Description */}
+        {/* Descripción */}
         {lectura.descripcion && (
-          <>
-            <p className="text-base font-semibold text-[#0F172A]">Descripción</p>
-            <p className={`text-sm text-[#475569] leading-relaxed mt-1 ${!descExpand ? 'line-clamp-4' : ''}`}>
+          <div style={{ marginBottom: '24px' }}>
+            <p style={{
+              fontSize: '13px', fontWeight: '700', color: '#374151',
+              marginBottom: '8px', textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+            }}>
+              Descripción
+            </p>
+            <p style={{
+              fontSize: '15px', color: '#6B7280',
+              lineHeight: '1.7', fontWeight: '400',
+            }}>
               {lectura.descripcion}
             </p>
-            {lectura.descripcion.length > 200 && (
-              <button
-                onClick={() => setDescExpand(!descExpand)}
-                className="text-sm font-medium text-[#2563EB] mt-1 cursor-pointer"
-              >
-                {descExpand ? 'Ver menos' : 'Ver más'}
-              </button>
-            )}
-          </>
+          </div>
         )}
 
-        {/* Assignment info */}
+        {/* Assignment info (si existe) */}
         {asignacion && (
-          <>
-            <div className="border-t border-[#F1F5F9] my-4" />
-            <p className="text-base font-semibold text-[#0F172A]">Asignación</p>
-            <div className="mt-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[12px] p-4 space-y-2">
-              {asignacion.instrucciones && (
-                <p className="text-sm text-[#475569]">{asignacion.instrucciones}</p>
-              )}
-              {asignacion.fecha_limite && (
-                <p className={`text-sm ${fechaLimiteProxima ? 'text-[#EF4444] font-medium' : 'text-[#94A3B8]'}`}>
-                  Fecha límite: {formatFecha(asignacion.fecha_limite)}
-                </p>
-              )}
-              {asignacion.bimestre && (
-                <p className="text-sm text-[#94A3B8]">Bimestre: {asignacion.bimestre.nombre}</p>
-              )}
-            </div>
-          </>
+          <div style={{
+            background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '16px',
+            padding: '16px', marginTop: '24px',
+          }}>
+            <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '8px', textTransform: 'uppercase' }}>
+              Asignación
+            </p>
+            {asignacion.instrucciones && (
+              <p style={{ fontSize: '14px', color: '#475569', marginBottom: '8px' }}>{asignacion.instrucciones}</p>
+            )}
+            {asignacion.fecha_limite && (
+              <p style={{ fontSize: '13px', color: fechaLimiteProxima ? '#EF4444' : '#94A3B8' }}>
+                Fecha límite: {formatFecha(asignacion.fecha_limite)}
+              </p>
+            )}
+          </div>
         )}
 
         {/* Questions info */}
         {totalPreguntas > 0 && (
-          <div className="mt-4 bg-[#EFF6FF] border border-[#BFDBFE] rounded-[12px] p-4 flex items-start gap-3">
-            <HelpCircle size={18} className="text-[#2563EB] mt-0.5 shrink-0" />
+          <div style={{
+            marginTop: '16px', background: '#EFF6FF', border: '1px solid #BFDBFE',
+            borderRadius: '16px', padding: '16px', display: 'flex', gap: '12px'
+          }}>
+            <HelpCircle size={18} color="#2563EB" style={{ marginTop: '2px' }} />
             <div>
-              <p className="text-sm text-[#2563EB] font-medium">
-                Esta lectura tiene {totalPreguntas} {totalPreguntas === 1 ? 'pregunta' : 'preguntas'} de evaluación
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#2563EB' }}>
+                {totalPreguntas} {totalPreguntas === 1 ? 'pregunta' : 'preguntas'} de evaluación
               </p>
-              <p className="text-xs text-[#475569] mt-0.5">
+              <p style={{ fontSize: '12px', color: '#475569', marginTop: '2px' }}>
                 Deberás responderlas al terminar la lectura
               </p>
             </div>
@@ -278,55 +311,77 @@ export default function LecturaDetalleContent({
         )}
       </div>
 
-      {/* FIXED ACTION BUTTONS */}
+      {/* FIXED BOTTOM BAR */}
       <div style={{
         position: 'fixed',
-        bottom: '64px',
-        left: 0, right: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
         zIndex: 50,
-        background: 'rgba(255,255,255,0.97)',
-        backdropFilter: 'blur(16px)',
-        borderTop: '1px solid #F1F5F9',
         padding: '12px 20px',
+        paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
+        background: 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))',
       }}>
-        <div style={{ maxWidth: '480px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '10px', maxWidth: '480px', margin: '0 auto' }}>
 
-            {yaCompleto ? (
-              <div className="space-y-2">
-                {totalPreguntas > 0 && asignacion && (
-                  <Button variant="primary" fullWidth
-                    onClick={() => router.push(`/evaluacion/${asignacion.id}`)}>
-                    Ver evaluación
-                  </Button>
-                )}
-                <Button variant="secondary" fullWidth
-                  leftIcon={<BookOpen size={16} />}
-                  onClick={() => router.push(`/lectura/${lectura.id}/leer`)}>
-                  Leer de nuevo
-                </Button>
-              </div>
-            ) : yaEmpezo ? (
-              <div className="flex gap-3">
-                <Button variant="primary" className="flex-1"
-                  leftIcon={<BookOpen size={16} />}
-                  onClick={() => router.push(`/lectura/${lectura.id}/leer`)}>
-                  Continuar
-                </Button>
-                {pdfUrl && (
-                  <Button variant="outline" className="flex-1"
-                    leftIcon={<Download size={16} />}
-                    onClick={() => window.open(pdfUrl, '_blank')}>
-                    Descargar
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <Button variant="primary" fullWidth
-                leftIcon={<BookOpen size={16} />}
-                onClick={() => router.push(`/lectura/${lectura.id}/leer`)}>
-                Leer ahora
-              </Button>
-            )}
+          {/* BOTÓN PRINCIPAL — Continuar/Empezar/Evaluación */}
+          <button
+            onClick={() => {
+              if (yaCompleto && totalPreguntas > 0 && asignacion) {
+                router.push(`/evaluacion/${asignacion.id}`)
+              } else {
+                router.push(`/lectura/${lectura.id}/leer`)
+              }
+            }}
+            style={{
+              flex: 1,
+              height: '52px',
+              background: 'linear-gradient(135deg, #4F46E5, #6D28D9)',
+              border: 'none',
+              borderRadius: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              boxShadow: '0 6px 20px rgba(79,70,229,0.38)',
+              fontFamily: 'inherit',
+            }}
+          >
+            <BookOpen size={18} color="white" strokeWidth={2} />
+            <span style={{
+              fontSize: '15px',
+              fontWeight: '700',
+              color: 'white',
+              letterSpacing: '0.01em',
+            }}>
+              {yaCompleto && totalPreguntas > 0 ? 'Ver evaluación' : (yaEmpezo ? 'Continuar' : 'Empezar')}
+            </span>
+          </button>
+
+          {/* BOTÓN SECUNDARIO — Descargar */}
+          {pdfUrl && (
+            <button
+              onClick={() => window.open(pdfUrl, '_blank')}
+              style={{
+                width: '52px',
+                height: '52px',
+                background: 'white',
+                border: '1.5px solid #E5E7EB',
+                borderRadius: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                flexShrink: 0,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                fontFamily: 'inherit',
+              }}
+            >
+              <Download size={18} color="#4F46E5" strokeWidth={2} />
+            </button>
+          )}
+
         </div>
       </div>
     </div>

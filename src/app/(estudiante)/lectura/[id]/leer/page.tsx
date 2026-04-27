@@ -27,7 +27,7 @@ export default async function LeerPage({ params }: PageProps) {
   // Get lectura basic info
   const { data: lecturaRaw } = await supabase
     .from('lecturas')
-    .select('id, titulo')
+    .select('id, titulo, autor')
     .eq('id', id)
     .single()
 
@@ -57,6 +57,7 @@ export default async function LeerPage({ params }: PageProps) {
       pdfUrl={archivo.url as string}
       lecturaId={id}
       lecturaTitulo={lectura.titulo as string}
+      lecturaAutor={lectura.autor as string}
       asignacionId={asignacion?.id ?? null}
       totalPreguntas={totalPreguntas}
       paginaInicial={progreso?.pagina_actual ?? 1}

@@ -12,6 +12,7 @@ export interface LecturaDetalleCompleta {
   categorias: { nombre: string } | null
   grados: { nombre: string } | null
   archivos: { id: string; url: string; tipo: string; nombre: string | null }[]
+  tiempo_lectura_min: number | null
 }
 
 export interface ProgresoLectura {

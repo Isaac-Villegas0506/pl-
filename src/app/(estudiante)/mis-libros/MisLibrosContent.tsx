@@ -7,7 +7,7 @@ import { Search, AlertTriangle, WifiOff, Calendar, BarChart3, BookOpen, HardDriv
 import { formatBytes, formatFecha, formatFechaCorta, formatTiempoRelativo, diasRestantes, fechaLimiteLabel, notaGradiente, obtenerGradientePortada } from '@/lib/utils'
 import BtnDescargar from '@/components/mis-libros/BtnDescargar'
 import { calcularEspacioIDB } from '@/hooks/useDescargaOffline'
-import EmptyState from '@/components/ui/EmptyState'
+import { EmptyState, Button } from '@/components/ui'
 
 interface Asignacion {
   id: string
@@ -376,17 +376,15 @@ export default function MisLibrosContent({
                 )}
 
                 <div style={{ display: 'flex', gap: '8px', marginTop: '14px' }}>
-                  <button onClick={() => router.push(`/lectura/${asig.id}`)} style={{
-                    flex: 1, height: '42px', borderRadius: '12px',
-                    background: asig.estado === 'completado' ? '#F5F3FF' : 'linear-gradient(135deg, #4F46E5, #6D28D9)',
-                    color: asig.estado === 'completado' ? '#4F46E5' : 'white',
-                    border: asig.estado === 'completado' ? '1.5px solid #C7D2FE' : 'none',
-                    fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                    boxShadow: asig.estado === 'completado' ? 'none' : '0 4px 12px rgba(79,70,229,0.3)',
-                  }}>
-                    {asig.estado === 'completado' ? <><BarChart3 size={16} /> Ver resultado</> : asig.estado === 'en_progreso' ? <><BookOpen size={16} /> Continuar</> : <><BookOpen size={16} /> Empezar</>}
-                  </button>
+                  <Button 
+                    variant={asig.estado === 'completado' ? 'outline' : 'primary'}
+                    className="flex-1"
+                    size="md"
+                    onClick={() => router.push(`/lectura/${asig.id}`)}
+                    leftIcon={asig.estado === 'completado' ? <BarChart3 size={16} /> : <BookOpen size={16} />}
+                  >
+                    {asig.estado === 'completado' ? 'Ver resultado' : asig.estado === 'en_progreso' ? 'Continuar' : 'Empezar'}
+                  </Button>
 
                   {asig.lectura.pdf_url && (
                     <BtnDescargar

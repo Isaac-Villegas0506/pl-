@@ -58,13 +58,24 @@ export default function BtnCerrarSesion({ variant = 'menuItem' }: Props) {
 
       {isModalOpen && (
         <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999,
-          background: 'rgba(17,24,39,0.4)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+          position: 'fixed',
+          inset: 0,
+          zIndex: 99999,   // FIX 4
+          background: 'rgba(0,0,0,0.55)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'flex-end',   // FIX 4: el sheet sube desde abajo
+          justifyContent: 'center',
         }}>
           <div style={{
-            background: 'white', borderRadius: '24px', padding: '24px', width: '100%', maxWidth: '340px',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.1)', animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+            width: '100%',
+            maxWidth: '480px',
+            background: 'white',
+            borderRadius: '28px 28px 0 0',
+            padding: '32px 20px',
+            paddingBottom: 'calc(32px + env(safe-area-inset-bottom, 0px))', // FIX 4
+            boxShadow: '0 -4px 20px rgba(0,0,0,0.1)',
+            animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
           }}>
             <div style={{
               width: '56px', height: '56px', borderRadius: '16px', background: '#FFF1F2',

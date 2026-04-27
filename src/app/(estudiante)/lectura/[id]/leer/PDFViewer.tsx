@@ -11,23 +11,19 @@ interface PDFViewerProps {
   paginaActual: number
   width: number
   onLoadSuccess: (numPages: number) => void
+  loading: React.ReactNode
+  error: React.ReactNode
 }
 
-export default function PDFViewer({ pdfUrl, paginaActual, width, onLoadSuccess }: PDFViewerProps) {
+export default function PDFViewer({ 
+  pdfUrl, paginaActual, width, onLoadSuccess, loading, error 
+}: PDFViewerProps) {
   return (
     <Document
       file={pdfUrl}
       onLoadSuccess={({ numPages }) => onLoadSuccess(numPages)}
-      loading={
-        <div className="flex items-center justify-center h-[60vh]">
-          <div className="w-8 h-8 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
-        </div>
-      }
-      error={
-        <div className="flex items-center justify-center h-[60vh] text-[#94A3B8] text-sm">
-          Error al cargar el PDF
-        </div>
-      }
+      loading={loading}
+      error={error}
     >
       <Page
         pageNumber={paginaActual}

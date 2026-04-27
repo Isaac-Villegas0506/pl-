@@ -3,7 +3,11 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { Settings, Camera } from 'lucide-react'
+import { 
+  Settings, Camera, Sprout, BookOpen, Flame, Zap, Star, Trophy, 
+  Diamond, Book, PenTool, Target, BarChart3, Medal, Sparkles, Lock, Circle,
+  Lightbulb, Shield, Sword, GraduationCap
+} from 'lucide-react'
 import { UsuarioPerfil, EstadisticasEstudiante, LogroDesbloqueado } from './types'
 import BtnCerrarSesion from '@/components/ui/BtnCerrarSesion'
 
@@ -19,25 +23,19 @@ interface Props {
 }
 
 const NIVELES = [
-  { min: 0,   nombre: 'Lector Principiante', emoji: '🌱' },
-  { min: 30,  nombre: 'Lector Curioso',      emoji: '📖' },
-  { min: 80,  nombre: 'Lector Activo',       emoji: '🔥' },
-  { min: 150, nombre: 'Lector Comprometido', emoji: '⚡' },
-  { min: 300, nombre: 'Gran Lector',         emoji: '🌟' },
-  { min: 500, nombre: 'Maestro Lector',      emoji: '🏆' },
-  { min: 800, nombre: 'Leyenda Lectora',     emoji: '💎' },
+  { min: 0,   nombre: 'Lector Principiante', Icon: Sprout,  color: '#10B981' },
+  { min: 30,  nombre: 'Lector Curioso',      Icon: BookOpen, color: '#3B82F6' },
+  { min: 80,  nombre: 'Lector Activo',       Icon: Flame,    color: '#F97316' },
+  { min: 150, nombre: 'Lector Comprometido', Icon: Zap,      color: '#F59E0B' },
+  { min: 300, nombre: 'Gran Lector',         Icon: Star,     color: '#8B5CF6' },
+  { min: 500, nombre: 'Maestro Lector',      Icon: Trophy,   color: '#EC4899' },
+  { min: 800, nombre: 'Leyenda Lectora',     Icon: Diamond,  color: '#06B6D4' },
 ]
 
-function calcularNivel(puntos: number): string {
+function getInfoNivel(puntos: number) {
   let nivel = NIVELES[0]
   for (const n of NIVELES) { if (puntos >= n.min) nivel = n }
-  return nivel.nombre
-}
-
-function calcularEmoji(puntos: number): string {
-  let nivel = NIVELES[0]
-  for (const n of NIVELES) { if (puntos >= n.min) nivel = n }
-  return nivel.emoji
+  return nivel
 }
 
 function siguienteNivelXP(puntos: number): number {
@@ -56,6 +54,25 @@ function porcentajeNivel(puntos: number): number {
     }
   }
   return 100
+}
+
+function getLogroIcon(emoji: string) {
+  switch (emoji) {
+    case '📚': return Book
+    case '🔥': return Flame
+    case '🏆': return Trophy
+    case '⭐': return Star
+    case '🌟': return Star
+    case '🚀': return Zap
+    case '⚡': return Zap
+    case '💡': return Lightbulb
+    case '🎓': return GraduationCap
+    case '💎': return Diamond
+    case '🛡️': return Shield
+    case '⚔️': return Sword
+    case '✨': return Sparkles
+    default: return Sparkles
+  }
 }
 
 function notaColor(nota: number): string {
@@ -192,21 +209,25 @@ export default function PerfilContent({
               }}>
                 {usuario.nombre} {usuario.apellido}
               </h1>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: '5px',
-                background: 'rgba(255,255,255,0.25)',
-                backdropFilter: 'blur(8px)',
-                borderRadius: '99px', padding: '4px 10px', marginTop: '6px',
-              }}>
-                <span style={{ fontSize: '14px' }}>
-                  {calcularEmoji(stats.total_puntos_logros)}
-                </span>
-                <span style={{
-                  fontSize: '12px', fontWeight: '800', color: 'white',
-                }}>
-                  {calcularNivel(stats.total_puntos_logros)}
-                </span>
-              </div>
+              {(() => {
+                const nivel = getInfoNivel(stats.total_puntos_logros)
+                const IconoNivel = nivel.Icon
+                return (
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '6px',
+                    background: 'rgba(255,255,255,0.25)',
+                    backdropFilter: 'blur(8px)',
+                    borderRadius: '99px', padding: '4px 12px', marginTop: '6px',
+                  }}>
+                    <IconoNivel size={14} color="white" strokeWidth={2.5} />
+                    <span style={{
+                      fontSize: '12px', fontWeight: '800', color: 'white',
+                    }}>
+                      {nivel.nombre}
+                    </span>
+                  </div>
+                )
+              })()}
               {usuario.bio && (
                 <p style={{
                   fontSize: '13px', color: 'rgba(255,255,255,0.8)',
@@ -257,20 +278,21 @@ export default function PerfilContent({
         display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px',
       }}>
         {[
-          { valor: stats.total_lecturas_completadas, label: 'Leídas', emoji: '📚' },
-          { valor: stats.total_evaluaciones, label: 'Evaluac.', emoji: '✏️' },
-          { valor: `${stats.promedio_notas > 0 ? stats.promedio_notas.toFixed(1) : '—'}`, label: 'Promedio', emoji: '🎯' },
-          { valor: rachaActual, label: 'Racha', emoji: '🔥' },
+          { valor: stats.total_lecturas_completadas, label: 'Leídas', Icon: Book, color: '#4F46E5' },
+          { valor: stats.total_evaluaciones, label: 'Evaluac.', Icon: PenTool, color: '#10B981' },
+          { valor: `${stats.promedio_notas > 0 ? stats.promedio_notas.toFixed(1) : '—'}`, label: 'Promedio', Icon: Target, color: '#F59E0B' },
+          { valor: rachaActual, label: 'Racha', Icon: Flame, color: '#F43F5E' },
         ].map((item) => (
           <div key={item.label} style={{
             background: 'white', borderRadius: '16px', padding: '12px 8px',
             textAlign: 'center',
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center'
           }}>
-            <span style={{ fontSize: '18px', display: 'block' }}>{item.emoji}</span>
+            <item.Icon size={18} color={item.color} strokeWidth={2.5} />
             <p style={{
               fontSize: '18px', fontWeight: '800', color: '#111827',
-              lineHeight: '1.1', marginTop: '4px',
+              lineHeight: '1.1', marginTop: '6px',
             }}>
               {item.valor}
             </p>
@@ -290,24 +312,29 @@ export default function PerfilContent({
         background: '#E5E7EB', borderRadius: '14px',
         padding: '4px', margin: '20px 16px 0',
       }}>
-        {['stats', 'logros', 'racha'].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setTabActiva(tab as typeof tabActiva)}
-            style={{
-              flex: 1, height: '36px', border: 'none', borderRadius: '10px',
-              fontSize: '13px', fontWeight: '700', cursor: 'pointer',
-              fontFamily: 'inherit',
-              background: tabActiva === tab ? 'white' : 'transparent',
-              color: tabActiva === tab ? '#111827' : '#6B7280',
-              boxShadow: tabActiva === tab ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-              transition: 'all 0.2s',
-              textTransform: 'capitalize',
-            }}
-          >
-            {tab === 'stats' ? '📊 Stats' : tab === 'logros' ? '🏆 Logros' : '🔥 Racha'}
-          </button>
-        ))}
+        {['stats', 'logros', 'racha'].map((tab) => {
+          const TabIcon = tab === 'stats' ? BarChart3 : tab === 'logros' ? Trophy : Flame
+          return (
+            <button
+              key={tab}
+              onClick={() => setTabActiva(tab as typeof tabActiva)}
+              style={{
+                flex: 1, height: '36px', border: 'none', borderRadius: '10px',
+                fontSize: '13px', fontWeight: '700', cursor: 'pointer',
+                fontFamily: 'inherit',
+                background: tabActiva === tab ? 'white' : 'transparent',
+                color: tabActiva === tab ? '#111827' : '#6B7280',
+                boxShadow: tabActiva === tab ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                transition: 'all 0.2s',
+                textTransform: 'capitalize',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+              }}
+            >
+              <TabIcon size={14} strokeWidth={2.5} />
+              {tab === 'stats' ? 'Stats' : tab === 'logros' ? 'Logros' : 'Racha'}
+            </button>
+          )
+        })}
       </div>
 
       {/* ═══════════════════════════════════════ */}
@@ -321,7 +348,8 @@ export default function PerfilContent({
           }}>
             <h3 style={{ fontSize: '15px', fontWeight: '800', color: '#111827',
               marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>🎯</span> Rendimiento en evaluaciones
+              <Target size={18} color="#F59E0B" strokeWidth={2.5} />
+              Rendimiento en evaluaciones
             </h3>
             <div style={{ display: 'flex', gap: '0', marginBottom: '16px' }}>
               {[
@@ -357,9 +385,11 @@ export default function PerfilContent({
                     padding: '8px 0',
                     borderBottom: i < topNotas.length - 1 ? '1px solid #F9FAFB' : 'none',
                   }}>
-                    <span style={{ fontSize: '16px' }}>
-                      {i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}
-                    </span>
+                    <Medal 
+                      size={18} 
+                      color={i === 0 ? '#F59E0B' : i === 1 ? '#94A3B8' : '#B45309'} 
+                      strokeWidth={2.5} 
+                    />
                     <p style={{ flex: 1, fontSize: '13px', fontWeight: '600',
                       color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap' }}>{n.titulo}</p>
@@ -381,17 +411,19 @@ export default function PerfilContent({
             display: 'flex', gap: '0',
           }}>
             <div style={{ flex: 1, textAlign: 'center',
-              borderRight: '1px solid rgba(245,158,11,0.2)', paddingRight: '16px' }}>
-              <p style={{ fontSize: '36px' }}>🔥</p>
+              borderRight: '1px solid rgba(245,158,11,0.2)', paddingRight: '16px',
+              display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Flame size={36} color="#F59E0B" strokeWidth={2} />
               <p style={{ fontSize: '32px', fontWeight: '800', color: '#D97706',
-                lineHeight: '1', marginTop: '4px' }}>{rachaActual}</p>
+                lineHeight: '1', marginTop: '8px' }}>{rachaActual}</p>
               <p style={{ fontSize: '12px', color: '#92400E', fontWeight: '700',
                 marginTop: '4px' }}>Racha actual</p>
             </div>
-            <div style={{ flex: 1, textAlign: 'center', paddingLeft: '16px' }}>
-              <p style={{ fontSize: '36px' }}>⚡</p>
+            <div style={{ flex: 1, textAlign: 'center', paddingLeft: '16px',
+              display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Zap size={36} color="#F59E0B" strokeWidth={2} />
               <p style={{ fontSize: '32px', fontWeight: '800', color: '#D97706',
-                lineHeight: '1', marginTop: '4px' }}>{rachaMaxima}</p>
+                lineHeight: '1', marginTop: '8px' }}>{rachaMaxima}</p>
               <p style={{ fontSize: '12px', color: '#92400E', fontWeight: '700',
                 marginTop: '4px' }}>Mejor racha</p>
             </div>
@@ -460,25 +492,27 @@ export default function PerfilContent({
                   filter: desbloqueado ? 'none' : 'grayscale(80%)',
                 }}>
                   {desbloqueado && (
-                    <span style={{
-                      position: 'absolute', top: '8px', right: '8px',
-                      fontSize: '9px', fontWeight: '800',
-                      color: colores.text, textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                    }}>
-                      {logro.rareza === 'legendario' ? '✨' :
-                       logro.rareza === 'epico' ? '💜' :
-                       logro.rareza === 'raro' ? '🔵' : '⚪'}
-                    </span>
+                    <Circle 
+                      size={10} 
+                      fill={colores.text} 
+                      color={colores.text} 
+                      style={{ position: 'absolute', top: '10px', right: '10px', opacity: 0.8 }} 
+                    />
                   )}
 
                   <div style={{
-                    fontSize: desbloqueado ? '36px' : '28px',
-                    filter: desbloqueado ? 'none' : 'grayscale(100%)',
+                    padding: '12px',
+                    borderRadius: '14px',
+                    background: desbloqueado ? 'white' : 'rgba(0,0,0,0.03)',
+                    color: colores.text,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                     animation: desbloqueado ? 'float 3s ease-in-out infinite' : 'none',
                     animationDelay: `${Math.random() * 2}s`,
                   }}>
-                    {desbloqueado ? logro.icono : '🔒'}
+                    {(() => {
+                      const Icono = desbloqueado ? getLogroIcon(logro.icono) : Lock
+                      return <Icono size={desbloqueado ? 32 : 24} strokeWidth={2.5} />
+                    })()}
                   </div>
 
                   <p style={{
@@ -561,7 +595,7 @@ export default function PerfilContent({
                       boxShadow: tieneActividad ? '0 4px 10px rgba(245,158,11,0.3)' : 'none',
                       transition: 'all 0.2s',
                     }}>
-                      {tieneActividad ? '🔥' : esHoy ? '📖' : ''}
+                      {tieneActividad ? <Flame size={20} color="white" strokeWidth={2.5} /> : esHoy ? <BookOpen size={20} color="#4F46E5" strokeWidth={2.5} /> : null}
                     </div>
                     <span style={{ fontSize: '10px', fontWeight: '600',
                       color: tieneActividad ? '#D97706' : '#D1D5DB' }}>
@@ -574,12 +608,12 @@ export default function PerfilContent({
             <div style={{ marginTop: '20px', textAlign: 'center', padding: '16px',
               background: '#FFFBEB', borderRadius: '14px', border: '1px solid #FEF3C7' }}>
               <p style={{ fontSize: '14px', fontWeight: '600', color: '#D97706' }}>
-                {rachaActual === 0 ? "Hoy es un buen día para empezar tu racha 📖" :
-                 rachaActual <= 2 ? "¡Buen inicio! Sigue así 💪" :
-                 rachaActual <= 6 ? `¡Vas muy bien! Ya llevas ${rachaActual} días 🔥` :
-                 rachaActual <= 13 ? "¡Una semana completa! Eres increíble ⚡" :
-                 rachaActual <= 29 ? "¡Dos semanas de racha! No pares ahora 🌟" :
-                 `¡LEYENDA LECTORA! ${rachaActual} días consecutivos 💎`}
+                {rachaActual === 0 ? "Hoy es un buen día para empezar tu racha" :
+                 rachaActual <= 2 ? "¡Buen inicio! Sigue así" :
+                 rachaActual <= 6 ? `¡Vas muy bien! Ya llevas ${rachaActual} días` :
+                 rachaActual <= 13 ? "¡Una semana completa! Eres increíble" :
+                 rachaActual <= 29 ? "¡Dos semanas de racha! No pares ahora" :
+                 `¡LEYENDA LECTORA! ${rachaActual} días consecutivos`}
               </p>
             </div>
           </div>

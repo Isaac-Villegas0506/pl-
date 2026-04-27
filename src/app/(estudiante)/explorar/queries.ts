@@ -13,11 +13,13 @@ export async function getFiltrosOpciones(supabase: TypedClient): Promise<Filtros
     supabase.from('lecturas').select('autor').eq('es_global', true).eq('estado', 'publicado'),
   ])
 
-  const grados = ((gradosRes.data as Record<string, unknown>[] | null) ?? []).map((g) => ({
-    id: g.id as string,
-    nombre: g.nombre as string,
-    orden: (g.orden as number) ?? 0,
-  }))
+  const grados = ((gradosRes.data as Record<string, unknown>[] | null) ?? [])
+    .filter((g) => (g.nombre as string).toLowerCase().includes('secundaria'))
+    .map((g) => ({
+      id: g.id as string,
+      nombre: g.nombre as string,
+      orden: (g.orden as number) ?? 0,
+    }))
 
   const materias = ((materiasRes.data as Record<string, unknown>[] | null) ?? []).map((m) => ({
     id: m.id as string,

@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { BookOpen, BookmarkPlus } from 'lucide-react'
+import { BookOpen, Bookmark } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
 import ProgressBar from '@/components/ui/ProgressBar'
 import { obtenerGradientePortada } from '@/lib/utils'
@@ -125,10 +125,10 @@ export default function LecturaCard({
     <div
       onClick={onPress}
       style={{
-        width: '156px',
+        width: '148px', // FIX 1B
         flexShrink: 0,
         background: 'white',
-        borderRadius: '20px',
+        borderRadius: '18px', // FIX 1B
         overflow: 'hidden',
         boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
         border: '1px solid rgba(0,0,0,0.03)',
@@ -141,7 +141,8 @@ export default function LecturaCard({
       {/* IMAGEN SUPERIOR */}
       <div style={{
         width: '100%',
-        height: '180px',
+        height: '172px', // FIX 1B
+        flexShrink: 0, // FIX 1B
         position: 'relative',
         background: gradient,
       }}>
@@ -169,34 +170,50 @@ export default function LecturaCard({
             boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
           }}
         >
-          <BookmarkPlus size={16} color="#374151" />
+          <Bookmark size={16} color="#374151" />
         </button>
       </div>
 
       {/* INFO INFERIOR */}
-      <div style={{ padding: '12px 14px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ 
+        padding: '11px 13px', // FIX 1B
+        height: '80px', // FIX 1B
+        display: 'flex', 
+        flexDirection: 'column',
+        justifyContent: 'space-between' // FIX 1B
+      }}>
         {lectura.materias && (
-          <div style={{ marginBottom: '6px' }}>
-            <Badge variant={getMateriaVariant(lectura.materias.nombre)} size="sm">
+          <div style={{ height: '20px' }}> {/* FIX 1B */}
+            <Badge 
+              variant={getMateriaVariant(lectura.materias.nombre)} 
+              size="sm"
+              style={{ fontSize: '10px' }} // FIX 1B
+            >
               {lectura.materias.nombre}
             </Badge>
           </div>
         )}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <p style={{
+            fontSize: '13px', // FIX 1B
+            fontWeight: 700, 
+            color: '#111827',
+            lineHeight: '1.3', // FIX 1B
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}>
+            {lectura.titulo}
+          </p>
+        </div>
         <p style={{
-          fontSize: '14px', fontWeight: 700, color: '#111827',
-          lineHeight: '1.25',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden',
-          marginBottom: '4px',
-        }}>
-          {lectura.titulo}
-        </p>
-        <p style={{
-          fontSize: '12px', color: '#6B7280', fontWeight: 500,
-          marginTop: 'auto',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          fontSize: '11px', // FIX 1B
+          color: '#9CA3AF', // FIX 1B
+          fontWeight: 500,
+          overflow: 'hidden', 
+          textOverflow: 'ellipsis', 
+          whiteSpace: 'nowrap',
         }}>
           {lectura.autor}
         </p>

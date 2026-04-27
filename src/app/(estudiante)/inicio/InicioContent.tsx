@@ -1,14 +1,14 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, BookOpen, CheckCircle, ChevronRight } from 'lucide-react'
+import { Bell, BookOpen, CheckCircle, ChevronRight, Sun, CloudSun, Moon, Clock as ClockIcon } from 'lucide-react'
 
-function getSaludo(nombre: string): { saludo: string; emoji: string } {
+function getSaludo(nombre: string): { saludo: string; Icon: any } {
   const hora = new Date().getHours()
-  if (hora >= 5  && hora < 12) return { saludo: `¡Buenos días, ${nombre}!`,  emoji: '☀️' }
-  if (hora >= 12 && hora < 18) return { saludo: `¡Buenas tardes, ${nombre}!`, emoji: '🌤️' }
-  return { saludo: `¡Buenas noches, ${nombre}!`, emoji: '🌙' }
+  if (hora >= 5  && hora < 12) return { saludo: `¡Buenos días, ${nombre}!`,  Icon: Sun }
+  if (hora >= 12 && hora < 18) return { saludo: `¡Buenas tardes, ${nombre}!`, Icon: CloudSun }
+  return { saludo: `¡Buenas noches, ${nombre}!`, Icon: Moon }
 }
 import { SectionHeader, EmptyState } from '@/components/ui'
 import { LecturaCard, LecturaCardHorizontalLarge } from '@/components/lecturas'
@@ -46,7 +46,7 @@ export default function InicioContent({
   }
 
   const nombreCorto = usuario.nombre?.split(' ')[0] ?? 'Estudiante'
-  const { saludo, emoji } = getSaludo(nombreCorto)
+  const { saludo, Icon: SaludoIcon } = getSaludo(nombreCorto)
   const asignacionesUrgentes = pendientes.length
 
   return (
@@ -62,9 +62,12 @@ export default function InicioContent({
         marginBottom: '16px',
       }}>
         <div>
-          <p style={{ fontSize: '13px', color: '#9CA3AF', fontWeight: 500 }}>
-            {saludo} {emoji}
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <SaludoIcon size={14} color="#F59E0B" strokeWidth={2.5} />
+            <p style={{ fontSize: '13px', color: '#9CA3AF', fontWeight: 500 }}>
+              {saludo}
+            </p>
+          </div>
           <h1 style={{
             fontSize: '28px', fontWeight: 800, color: '#111827',
             lineHeight: '1.1', marginTop: '2px',
@@ -79,7 +82,7 @@ export default function InicioContent({
               display: 'flex', alignItems: 'center', gap: '8px',
               boxShadow: '0 4px 12px rgba(217,119,6,0.3)'
             }}>
-              <span style={{ fontSize: '16px' }}>⏰</span>
+              <ClockIcon size={16} color="white" strokeWidth={2.5} />
               <p style={{ fontSize: '13px', fontWeight: '700', color: 'white' }}>
                 {asignacionesUrgentes === 1
                   ? '1 lectura vence pronto'
