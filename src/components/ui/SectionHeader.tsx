@@ -6,17 +6,23 @@ interface SectionHeaderProps {
 
 export default function SectionHeader({ title, linkText, onLinkPress }: SectionHeaderProps) {
   return (
-    <div className="flex items-center justify-between">
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
       <h2
-        className="text-[18px] font-extrabold text-[#111827]"
-        style={{ fontFamily: 'var(--font-nunito)' }}
+        style={{
+          fontSize: '18px', fontWeight: '800', color: '#111827',
+          fontFamily: 'var(--font-nunito)', margin: 0
+        }}
       >
         {title}
       </h2>
       {linkText && onLinkPress && (
         <button
           onClick={onLinkPress}
-          className="text-[13px] font-bold text-[#4F46E5] cursor-pointer hover:underline active:opacity-70 transition-opacity"
+          style={{
+            fontSize: '13px', fontWeight: '700', color: '#4F46E5',
+            cursor: 'pointer', background: 'transparent', border: 'none',
+            padding: 0, fontFamily: 'inherit',
+          }}
         >
           {linkText}
         </button>

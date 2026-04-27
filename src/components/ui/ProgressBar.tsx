@@ -30,23 +30,27 @@ export default function ProgressBar({
   const clamped = Math.max(0, Math.min(100, value))
 
   return (
-    <div className={cn('w-full', className)}>
+    <div style={{ width: '100%' }}>
       {showLabel && (
-        <div className="flex justify-end mb-1">
-          <span className="text-xs font-bold" style={{ color: labelColors[color] }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '4px' }}>
+          <span style={{ fontSize: '12px', fontWeight: 'bold', color: labelColors[color] }}>
             {clamped}%
           </span>
         </div>
       )}
       <div
-        className={cn(
-          'w-full rounded-full overflow-hidden bg-[#E5E7EB]',
-          size === 'sm' ? 'h-1.5' : 'h-2'
-        )}
+        style={{
+          width: '100%',
+          borderRadius: '9999px',
+          overflow: 'hidden',
+          background: '#E5E7EB',
+          height: size === 'sm' ? '6px' : '8px',
+        }}
       >
         <div
-          className="h-full rounded-full"
           style={{
+            height: '100%',
+            borderRadius: '9999px',
             width: `${clamped}%`,
             background: gradients[color],
             transition: 'width 0.8s cubic-bezier(0.16,1,0.3,1)',

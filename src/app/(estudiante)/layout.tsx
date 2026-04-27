@@ -1,6 +1,9 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { BottomNav } from '@/components/layout'
+import ToastNotificacion from '@/components/notificaciones/ToastNotificacion'
+import InstalarAppBanner from '@/components/pwa/InstalarAppBanner'
+import SolicitarPermisosPush from '@/components/pwa/SolicitarPermisosPush'
 
 export default async function EstudianteLayout({
   children,
@@ -14,10 +17,11 @@ export default async function EstudianteLayout({
 
   const { data: perfilData } = await supabase
     .from('usuarios')
-    .select('*')
+    .select('id, rol')
     .eq('auth_id', user.id)
     .single()
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const perfil = perfilData as any
 
   if (perfil?.rol === 'administrador') redirect('/admin/dashboard')
@@ -31,6 +35,9 @@ export default async function EstudianteLayout({
     }}>
       {children}
       <BottomNav />
+      <ToastNotificacion />
+      <InstalarAppBanner />
+      {perfil?.id && <SolicitarPermisosPush usuarioId={perfil.id} />}
     </div>
   )
 }

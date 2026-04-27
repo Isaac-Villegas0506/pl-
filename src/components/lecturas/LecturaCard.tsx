@@ -120,24 +120,29 @@ export default function LecturaCard({
   }
 
   // Variante vertical
+  // Variante vertical unificada
   return (
     <div
       onClick={onPress}
       style={{
-        width: '148px',
+        width: '156px',
         flexShrink: 0,
+        background: 'white',
+        borderRadius: '20px',
+        overflow: 'hidden',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+        border: '1px solid rgba(0,0,0,0.03)',
         cursor: onPress ? 'pointer' : 'default',
-        transition: 'transform 0.15s',
+        transition: 'transform 0.15s, box-shadow 0.15s',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      {/* IMAGEN */}
+      {/* IMAGEN SUPERIOR */}
       <div style={{
         width: '100%',
-        height: '196px',
-        borderRadius: '16px',
-        overflow: 'hidden',
+        height: '180px',
         position: 'relative',
-        boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
         background: gradient,
       }}>
         {lectura.portada_url ? (
@@ -152,10 +157,10 @@ export default function LecturaCard({
         )}
         {/* BOTÓN BOOKMARK */}
         <button
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); /* lógica favoritos aquí */ }}
           style={{
             position: 'absolute', top: '8px', right: '8px',
-            width: '30px', height: '30px',
+            width: '32px', height: '32px',
             background: 'rgba(255,255,255,0.9)',
             backdropFilter: 'blur(8px)',
             border: 'none', borderRadius: '50%',
@@ -164,35 +169,38 @@ export default function LecturaCard({
             boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
           }}
         >
-          <BookmarkPlus size={14} color="#374151" />
+          <BookmarkPlus size={16} color="#374151" />
         </button>
       </div>
 
-      {/* INFO */}
-      {lectura.materias && (
-        <div style={{ marginTop: '10px' }}>
-          <Badge variant={getMateriaVariant(lectura.materias.nombre)} size="sm">
-            {lectura.materias.nombre}
-          </Badge>
-        </div>
-      )}
-      <p style={{
-        fontSize: '13px', fontWeight: 700, color: '#111827',
-        marginTop: '6px', lineHeight: '1.3',
-        display: '-webkit-box',
-        WebkitLineClamp: 2,
-        WebkitBoxOrient: 'vertical',
-        overflow: 'hidden',
-      }}>
-        {lectura.titulo}
-      </p>
-      <p style={{
-        fontSize: '12px', color: '#9CA3AF', fontWeight: 500,
-        marginTop: '3px',
-        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-      }}>
-        {lectura.autor}
-      </p>
+      {/* INFO INFERIOR */}
+      <div style={{ padding: '12px 14px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        {lectura.materias && (
+          <div style={{ marginBottom: '6px' }}>
+            <Badge variant={getMateriaVariant(lectura.materias.nombre)} size="sm">
+              {lectura.materias.nombre}
+            </Badge>
+          </div>
+        )}
+        <p style={{
+          fontSize: '14px', fontWeight: 700, color: '#111827',
+          lineHeight: '1.25',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          marginBottom: '4px',
+        }}>
+          {lectura.titulo}
+        </p>
+        <p style={{
+          fontSize: '12px', color: '#6B7280', fontWeight: 500,
+          marginTop: 'auto',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>
+          {lectura.autor}
+        </p>
+      </div>
     </div>
   )
 }

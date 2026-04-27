@@ -60,11 +60,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/inicio', request.url))
   }
 
+  // Rutas exclusivas de estudiante
+  const rutasEstudiante = ['/inicio', '/explorar', '/mis-libros', '/perfil', '/favoritos']
+  const isEstudianteRoute = rutasEstudiante.some(r => path.startsWith(r))
+  
+  if (isEstudianteRoute && rol !== 'estudiante') {
+    const destino = rol === 'administrador' ? '/admin/dashboard' : '/profesor/dashboard'
+    return NextResponse.redirect(new URL(destino, request.url))
+  }
+
   return supabaseResponse
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.json|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

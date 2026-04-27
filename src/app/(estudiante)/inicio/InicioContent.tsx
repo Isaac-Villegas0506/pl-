@@ -1,13 +1,22 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, BookOpen, CheckCircle } from 'lucide-react'
+import { Bell, BookOpen, CheckCircle, ChevronRight } from 'lucide-react'
+
+function getSaludo(nombre: string): { saludo: string; emoji: string } {
+  const hora = new Date().getHours()
+  if (hora >= 5  && hora < 12) return { saludo: `¡Buenos días, ${nombre}!`,  emoji: '☀️' }
+  if (hora >= 12 && hora < 18) return { saludo: `¡Buenas tardes, ${nombre}!`, emoji: '🌤️' }
+  return { saludo: `¡Buenas noches, ${nombre}!`, emoji: '🌙' }
+}
 import { SectionHeader, EmptyState } from '@/components/ui'
 import { LecturaCard, LecturaCardHorizontalLarge } from '@/components/lecturas'
 import type { UsuarioSesion, LecturaConRelaciones } from '@/types/app.types'
 import type { LecturaEnProgresoConDetalle, AsignacionConLectura } from './types'
 import BuscadorHome from './BuscadorHome'
 import AccesoRapido from './AccesoRapido'
+import { registrarActividadHoyAction } from '../perfil/actions'
 
 interface InicioContentProps {
   usuario: UsuarioSesion
@@ -26,11 +35,19 @@ export default function InicioContent({
 }: InicioContentProps) {
   const router = useRouter()
 
+  useEffect(() => {
+    if (usuario?.id) {
+      registrarActividadHoyAction(usuario.id).catch(console.error)
+    }
+  }, [usuario?.id])
+
   function navegar(ruta: string) {
     router.push(ruta)
   }
 
   const nombreCorto = usuario.nombre?.split(' ')[0] ?? 'Estudiante'
+  const { saludo, emoji } = getSaludo(nombreCorto)
+  const asignacionesUrgentes = pendientes.length
 
   return (
     <div style={{
@@ -46,7 +63,7 @@ export default function InicioContent({
       }}>
         <div>
           <p style={{ fontSize: '13px', color: '#9CA3AF', fontWeight: 500 }}>
-            ¡Hola, {nombreCorto}! 👋
+            {saludo} {emoji}
           </p>
           <h1 style={{
             fontSize: '28px', fontWeight: 800, color: '#111827',
@@ -55,6 +72,22 @@ export default function InicioContent({
           }}>
             Inicio
           </h1>
+          {asignacionesUrgentes > 0 && (
+            <div style={{
+              background: 'linear-gradient(135deg, #F59E0B, #D97706)',
+              borderRadius: '14px', padding: '10px 14px', marginTop: '12px',
+              display: 'flex', alignItems: 'center', gap: '8px',
+              boxShadow: '0 4px 12px rgba(217,119,6,0.3)'
+            }}>
+              <span style={{ fontSize: '16px' }}>⏰</span>
+              <p style={{ fontSize: '13px', fontWeight: '700', color: 'white' }}>
+                {asignacionesUrgentes === 1
+                  ? '1 lectura vence pronto'
+                  : `${asignacionesUrgentes} lecturas vencen pronto`}
+              </p>
+              <ChevronRight size={14} color="rgba(255,255,255,0.8)" style={{ marginLeft: 'auto' }} />
+            </div>
+          )}
         </div>
         <button
           onClick={() => navegar('/notificaciones')}

@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic'
 import { ChevronLeft, Bookmark, Minus, Plus } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import CompletadoModal from '@/components/lector/CompletadoModal'
+import { registrarActividadHoyAction } from '../../../perfil/actions'
 
 const PDFViewer = dynamic(() => import('./PDFViewer'), { ssr: false })
 
@@ -51,6 +52,12 @@ export default function LectorPDFContent({
     if (savedFont) setFontSize(parseInt(savedFont, 10))
     if (savedModo) setModoOscuro(savedModo !== 'false')
   }, [])
+
+  useEffect(() => {
+    if (estudianteId) {
+      registrarActividadHoyAction(estudianteId).catch(console.error)
+    }
+  }, [estudianteId])
 
   // Measure container width
   useEffect(() => {

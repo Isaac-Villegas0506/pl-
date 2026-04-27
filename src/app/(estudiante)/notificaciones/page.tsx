@@ -1,14 +1,11 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { TopBar } from '@/components/layout'
-import NotificacionesLista from './NotificacionesLista'
+import NotificacionesContent from './NotificacionesContent'
+import type { Notificacion } from '@/hooks/useNotificaciones'
 
 export default async function NotificacionesPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: perfilData } = await supabase
@@ -17,41 +14,23 @@ export default async function NotificacionesPage() {
     .eq('auth_id', user.id)
     .single()
 
-  const perfil = perfilData as Record<string, unknown> | null
+  const perfil = perfilData as { id: string } | null
   if (!perfil) redirect('/login')
 
-  const usuarioId = perfil.id as string
-
-  const { data: notificacionesRaw } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data } = await (supabase as any)
     .from('notificaciones')
-    .select('*')
-    .eq('usuario_id', usuarioId)
+    .select('id, tipo, titulo, mensaje, leida, accion_url, created_at')
+    .eq('usuario_id', perfil.id)
     .order('created_at', { ascending: false })
-    .limit(30)
+    .limit(50)
 
-  const notificaciones = ((notificacionesRaw as Record<string, unknown>[] | null) ?? []).map(
-    (n) => ({
-      id: n.id as string,
-      tipo: n.tipo as 'asignacion' | 'vencimiento' | 'calificacion' | 'sistema',
-      titulo: n.titulo as string,
-      mensaje: (n.mensaje as string | null) ?? null,
-      leida: n.leida as boolean,
-      url_destino: (n.url_destino as string | null) ?? null,
-      created_at: n.created_at as string,
-    })
-  )
-
-  // Marcar todas como leídas
-  await (supabase as any)
-    .from('notificaciones')
-    .update({ leida: true })
-    .eq('usuario_id', usuarioId)
-    .eq('leida', false)
+  const notificaciones = (data ?? []) as Notificacion[]
 
   return (
-    <div>
-      <TopBar title="Notificaciones" showBack />
-      <NotificacionesLista notificaciones={notificaciones} />
-    </div>
+    <NotificacionesContent
+      notificacionesIniciales={notificaciones}
+      usuarioId={perfil.id}
+    />
   )
 }

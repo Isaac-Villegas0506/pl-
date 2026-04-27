@@ -1,15 +1,71 @@
-import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import TopBar from '@/components/layout/TopBar'
+import LecturaCard from '@/components/lecturas/LecturaCard'
+import EmptyState from '@/components/ui/EmptyState'
+
+export const dynamic = 'force-dynamic'
 
 export default async function FavoritosPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+
+  const { data: authData } = await supabase.auth.getUser()
+  if (!authData.user) redirect('/login')
+
+  const { data: perfil } = await (supabase as any)
+    .from('usuarios')
+    .select('id, rol')
+    .eq('auth_id', authData.user.id)
+    .single()
+
+  if (!perfil) redirect('/login')
+
+  // Obtener favoritos
+  const { data: favoritosData } = await (supabase as any)
+    .from('favoritos')
+    .select(`
+      id,
+      lectura:lecturas(
+        id, titulo, autor, portada_url,
+        materias(nombre)
+      )
+    `)
+    .eq('usuario_id', perfil.id)
+    .order('created_at', { ascending: false })
+
+  const favoritos = favoritosData?.map((f: any) => f.lectura) || []
 
   return (
-    <div className="max-w-md mx-auto px-4 py-4">
-      <h1 className="text-2xl font-bold text-[#0F172A]">Favoritos</h1>
-      <p className="text-sm text-[#475569] mt-2">Esta pantalla se construirá próximamente.</p>
+    <div style={{ minHeight: '100vh', background: '#F8FAFC', paddingBottom: '90px' }}>
+      <TopBar title="Mis Favoritos" />
+
+      <div style={{ padding: '24px 16px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#111827', marginBottom: '8px' }}>
+          Mis Favoritos
+        </h1>
+        <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
+          Tus lecturas guardadas para leer después.
+        </p>
+
+        {favoritos.length > 0 ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' }}>
+            {favoritos.map((lectura: any) => (
+              <LecturaCard
+                key={lectura.id}
+                lectura={lectura}
+                variant="vertical"
+              />
+            ))}
+          </div>
+        ) : (
+          <div style={{ marginTop: '40px' }}>
+            <EmptyState
+              title="Aún no tienes favoritos"
+              description="Explora la biblioteca y guarda las lecturas que más te gusten usando el ícono de marcador."
+            />
+          </div>
+        )}
+      </div>
     </div>
   )
 }

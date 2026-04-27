@@ -1,36 +1,71 @@
-'use client'
+import { LucideIcon, FolderOpen } from 'lucide-react'
 
-import Button from './Button'
-import type { LucideIcon } from 'lucide-react'
-
-interface EmptyStateProps {
+interface Props {
+  emoji?: string
   icon?: LucideIcon
-  title: string
+  titulo?: string
+  title?: string
+  subtexto?: string
   description?: string
+  botonLabel?: string
+  onBoton?: () => void
+  colorBoton?: string
   action?: { label: string; onClick: () => void }
 }
 
-export default function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
+export default function EmptyState({
+  icon: Icon, titulo, title, subtexto, description, botonLabel, onBoton, colorBoton = '#4F46E5', action
+}: Props) {
+  const displayTitle = titulo || title || ''
+  const displaySubtext = subtexto || description || ''
+  const finalBotonLabel = botonLabel || action?.label
+  const finalOnBoton = onBoton || action?.onClick
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-      {Icon && (
-        <div
-          className="w-20 h-20 rounded-[20px] flex items-center justify-center mb-4"
-          style={{ background: 'linear-gradient(135deg, #EEF2FF, #F5F3FF)' }}
-        >
-          <Icon size={36} className="text-[#A5B4FC]" />
-        </div>
+    <div style={{
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      padding: '56px 32px', textAlign: 'center',
+      animation: 'fadeIn 0.4s ease',
+    }}>
+      {/* Icono grande con fondo circular */}
+      <div style={{
+        width: '80px', height: '80px', borderRadius: '24px',
+        background: 'linear-gradient(135deg, #EEF2FF, #F5F3FF)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: '0 4px 16px rgba(79,70,229,0.12)',
+        marginBottom: '20px',
+        animation: 'float 3s ease-in-out infinite',
+      }}>
+        {Icon ? <Icon size={32} color={colorBoton} /> : <FolderOpen size={32} color={colorBoton} />}
+      </div>
+
+      <h3 style={{
+        fontSize: '18px', fontWeight: '800', color: '#111827',
+        marginBottom: '8px', lineHeight: '1.3',
+      }}>
+        {displayTitle}
+      </h3>
+
+      {displaySubtext && (
+        <p style={{
+          fontSize: '14px', color: '#9CA3AF', lineHeight: '1.6',
+          maxWidth: '260px', marginBottom: '24px',
+        }}>
+          {displaySubtext}
+        </p>
       )}
-      <h3 className="text-[16px] font-bold text-[#111827]">{title}</h3>
-      {description && (
-        <p className="text-sm text-[#9CA3AF] mt-1.5 max-w-xs leading-relaxed">{description}</p>
-      )}
-      {action && (
-        <div className="mt-5">
-          <Button variant="secondary" size="md" onClick={action.onClick}>
-            {action.label}
-          </Button>
-        </div>
+
+      {finalBotonLabel && finalOnBoton && (
+        <button onClick={finalOnBoton} style={{
+          height: '46px', padding: '0 24px',
+          background: `linear-gradient(135deg, ${colorBoton}, ${colorBoton}BB)`,
+          color: 'white', border: 'none', borderRadius: '13px',
+          fontSize: '14px', fontWeight: '700',
+          cursor: 'pointer', fontFamily: 'inherit',
+          boxShadow: `0 4px 14px ${colorBoton}44`,
+        }}>
+          {finalBotonLabel}
+        </button>
       )}
     </div>
   )
