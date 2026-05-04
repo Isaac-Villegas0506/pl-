@@ -36,19 +36,25 @@ export default async function FavoritosPage() {
   const favoritos = favoritosData?.map((f: any) => f.lectura) || []
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', paddingBottom: '90px' }}>
+    <div style={{ minHeight: '100vh', background: '#F8FAFC', paddingBottom: '100px' }}>
       <TopBar title="Mis Favoritos" />
 
-      <div style={{ padding: '24px 16px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#111827', marginBottom: '8px' }}>
-          Mis Favoritos
-        </h1>
-        <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
-          Tus lecturas guardadas para leer después.
-        </p>
+      <div className="estudiante-container" style={{ padding: '32px 20px' }}>
+        <div style={{ marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: '900', color: '#111827', lineHeight: '1.1' }}>
+            Mis Favoritos
+          </h1>
+          <p style={{ fontSize: '15px', color: '#64748B', marginTop: '8px', fontWeight: 500 }}>
+            Tus lecturas guardadas para leer cuando quieras.
+          </p>
+        </div>
 
         {favoritos.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', 
+            gap: '24px' 
+          }}>
             {favoritos.map((lectura: any) => (
               <LecturaCard
                 key={lectura.id}
@@ -58,7 +64,7 @@ export default async function FavoritosPage() {
             ))}
           </div>
         ) : (
-          <div style={{ marginTop: '40px' }}>
+          <div style={{ marginTop: '20px' }}>
             <EmptyState
               title="Aún no tienes favoritos"
               description="Explora la biblioteca y guarda las lecturas que más te gusten usando el ícono de marcador."

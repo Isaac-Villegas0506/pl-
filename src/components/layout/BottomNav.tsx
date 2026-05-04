@@ -28,27 +28,27 @@ export default function BottomNav() {
   }
 
   return (
-    <nav style={{
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      zIndex: 50, // FIX 4
-      height: '64px',
-      background: 'rgba(255,255,255,0.95)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      borderTop: '1px solid rgba(229,231,235,0.8)',
-      boxShadow: '0 -4px 20px rgba(0,0,0,0.06)',
-      paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-    }}>
+    <nav
+      className="bottom-nav-mobile"
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 10000,
+        background: 'white',
+        borderTop: '1px solid #F1F5F9',
+        paddingBottom: 'max(12px, env(safe-area-inset-bottom, 0px))',
+        paddingTop: '10px',
+      }}
+    >
       <div style={{
-        maxWidth: '480px',
+        maxWidth: '600px',
         margin: '0 auto',
-        height: '100%',
         display: 'flex',
+        justifyContent: 'space-around',
         alignItems: 'center',
-        padding: '0 8px',
+        padding: '0 24px',
       }}>
         {NAV_ITEMS.map((item) => {
           const active = isActive(item)
@@ -63,35 +63,27 @@ export default function BottomNav() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
-                gap: '3px',
+                gap: '4px',
                 cursor: 'pointer',
-                padding: '8px 4px',
-                position: 'relative',
+                padding: '4px',
+                transition: 'all 0.2s ease',
                 outline: 'none',
               }}
             >
-              {/* Indicador activo arriba */}
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                width: '32px',
-                height: '3px',
-                borderRadius: '0 0 4px 4px',
-                background: active ? '#4F46E5' : 'transparent',
-                transition: 'background 0.2s',
-              }} />
               <item.Icon
-                size={22}
-                color={active ? '#4F46E5' : '#9CA3AF'}
-                strokeWidth={active ? 2.5 : 1.8}
+                size={24}
+                color={active ? '#4F46E5' : '#94A3B8'}
+                strokeWidth={active ? 2.5 : 2}
+                style={{
+                  transition: 'transform 0.2s',
+                  transform: active ? 'scale(1.1)' : 'scale(1)',
+                }}
               />
               <span style={{
                 fontSize: '10px',
-                fontWeight: active ? 700 : 600,
-                color: active ? '#4F46E5' : '#9CA3AF',
-                letterSpacing: '0.01em',
-                lineHeight: 1,
+                fontWeight: active ? 800 : 600,
+                color: active ? '#4F46E5' : '#94A3B8',
+                textTransform: 'capitalize',
               }}>
                 {item.label}
               </span>

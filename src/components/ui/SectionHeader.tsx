@@ -1,3 +1,7 @@
+'use client'
+
+import React from 'react'
+
 interface SectionHeaderProps {
   title: string
   linkText?: string
@@ -6,23 +10,35 @@ interface SectionHeaderProps {
 
 export default function SectionHeader({ title, linkText, onLinkPress }: SectionHeaderProps) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <h2
-        style={{
-          fontSize: '18px', fontWeight: '800', color: '#111827',
-          fontFamily: 'var(--font-nunito)', margin: 0
-        }}
-      >
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: '12px',
+    }}>
+      <h2 style={{
+        fontSize: '20px',
+        fontWeight: 800,
+        color: '#0F172A', // Slate 900
+        fontFamily: 'var(--font-nunito)',
+      }}>
         {title}
       </h2>
       {linkText && onLinkPress && (
         <button
           onClick={onLinkPress}
           style={{
-            fontSize: '13px', fontWeight: '700', color: '#4F46E5',
-            cursor: 'pointer', background: 'transparent', border: 'none',
-            padding: 0, fontFamily: 'inherit',
+            background: 'none',
+            border: 'none',
+            padding: '4px 0',
+            fontSize: '14px',
+            fontWeight: 700,
+            color: '#4F46E5', // Indigo 600
+            cursor: 'pointer',
+            transition: 'opacity 0.2s',
           }}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.7')}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
         >
           {linkText}
         </button>

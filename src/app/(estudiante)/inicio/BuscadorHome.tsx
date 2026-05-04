@@ -19,23 +19,22 @@ export default function BuscadorHome({ onSearch }: BuscadorHomeProps) {
   return (
     <form onSubmit={handleSubmit}>
       <div
+        className="soft-shadow"
         style={{
-          display: 'flex', alignItems: 'center', gap: '10px',
-          background: 'white',
+          display: 'flex', alignItems: 'center', gap: '12px',
+          background: '#F8FAFC', // Slate 50
           borderRadius: '16px',
           padding: '0 16px',
-          height: '50px',
-          border: isFocused ? '1.5px solid #4F46E5' : '1.5px solid #E5E7EB',
-          boxShadow: isFocused
-            ? '0 0 0 3px rgba(79,70,229,0.10), 0 2px 8px rgba(0,0,0,0.04)'
-            : '0 2px 8px rgba(0,0,0,0.04)',
-          transition: 'border-color 0.2s, box-shadow 0.2s',
+          height: '52px', // Restored closer to original height
+          border: isFocused ? '2px solid #4F46E5' : '2px solid transparent',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
         <button type="submit" style={{ flexShrink: 0, cursor: 'pointer', background: 'none', border: 'none', display: 'flex' }}>
           <Search
             size={18}
-            color={isFocused ? '#4F46E5' : '#9CA3AF'}
+            color={isFocused ? '#4F46E5' : '#94A3B8'}
+            strokeWidth={2.5}
           />
         </button>
         <input
@@ -44,11 +43,11 @@ export default function BuscadorHome({ onSearch }: BuscadorHomeProps) {
           onChange={(e) => setValue(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          placeholder="Buscar libros, autores..."
+          placeholder="¿Qué quieres leer hoy?"
           style={{
             flex: 1, border: 'none', outline: 'none',
             background: 'transparent',
-            fontSize: '15px', fontWeight: 500, color: '#111827',
+            fontSize: '15px', fontWeight: 600, color: '#0F172A',
             fontFamily: 'var(--font-nunito)',
             minWidth: 0,
           }}

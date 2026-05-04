@@ -102,128 +102,137 @@ export default function NotificacionesContent({ notificacionesIniciales, usuario
         }
       />
 
-      {/* FILTROS */}
-      <div style={{ overflowX: 'auto', padding: '12px 16px 0' }}>
-        <div style={{ display: 'flex', gap: '8px', width: 'max-content' }}>
-          {FILTROS.map(f => {
-            const activo = filtro === f.key
-            return (
-              <button key={f.key} onClick={() => setFiltro(f.key)} style={{
-                height: '34px', padding: '0 16px', borderRadius: '99px',
-                border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700',
-                background: activo ? '#4F46E5' : 'white',
-                color: activo ? 'white' : '#6B7280',
-                boxShadow: activo ? '0 2px 8px rgba(79,70,229,0.25)' : '0 1px 4px rgba(0,0,0,0.06)',
-              }}>
-                {f.label}
-                {f.key === 'no_leidas' && noLeidas > 0 && (
-                  <span style={{
-                    marginLeft: '6px', background: activo ? 'rgba(255,255,255,0.3)' : '#4F46E5',
-                    color: activo ? 'white' : 'white', borderRadius: '99px',
-                    padding: '1px 6px', fontSize: '11px',
-                  }}>{noLeidas}</span>
-                )}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* LISTA */}
-      <div style={{ padding: '12px 16px' }}>
-        {isLoading && notificaciones.length === 0 && (
-          <p style={{ textAlign: 'center', color: '#9CA3AF', padding: '40px', fontSize: '14px' }}>
-            Cargando...
-          </p>
-        )}
-
-        {!isLoading && filtradas.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <div style={{
-              width: '72px', height: '72px', borderRadius: '50%',
-              background: '#F3F4F6', margin: '0 auto 16px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Bell size={32} color="#D1D5DB" strokeWidth={1.5} />
-            </div>
-            <p style={{ fontSize: '18px', fontWeight: '800', color: '#111827' }}>Todo al día</p>
-            <p style={{ fontSize: '14px', color: '#9CA3AF', marginTop: '6px' }}>
-              No tienes notificaciones pendientes
-            </p>
-          </div>
-        )}
-
-        {grupos.map(grupo => (
-          <div key={grupo.label} style={{ marginBottom: '20px' }}>
-            <p style={{ fontSize: '12px', fontWeight: '700', color: '#9CA3AF', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              {grupo.label}
-            </p>
-            {grupo.items.map(n => {
-              const col = COLORES[n.tipo] ?? COLORES.sistema
+      <div className="estudiante-container" style={{ padding: '0 20px' }}>
+        {/* FILTROS */}
+        <div style={{ overflowX: 'auto', padding: '16px 0 0' }} className="scrollbar-hide">
+          <div style={{ display: 'flex', gap: '10px', width: 'max-content', paddingBottom: '4px' }}>
+            {FILTROS.map(f => {
+              const activo = filtro === f.key
               return (
-                <div key={n.id} onClick={() => handleClick(n)} style={{
-                  display: 'flex', gap: '12px', alignItems: 'flex-start',
-                  padding: '14px', marginBottom: '8px',
-                  background: n.leida ? 'white' : '#F5F3FF',
-                  borderRadius: '16px',
-                  border: n.leida ? '1px solid rgba(0,0,0,0.04)' : `1.5px solid ${col.border}`,
-                  cursor: n.accion_url ? 'pointer' : 'default',
-                  boxShadow: n.leida ? '0 1px 4px rgba(0,0,0,0.04)' : '0 2px 8px rgba(79,70,229,0.08)',
+                <button key={f.key} onClick={() => setFiltro(f.key)} style={{
+                  height: '38px', padding: '0 20px', borderRadius: '12px',
+                  border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '800',
+                  background: activo ? '#4F46E5' : 'white',
+                  color: activo ? 'white' : '#64748B',
+                  boxShadow: activo ? '0 4px 12px rgba(79,70,229,0.2)' : '0 2px 6px rgba(0,0,0,0.04)',
+                  transition: 'all 0.2s ease',
                 }}>
-                  {/* Ícono */}
-                  <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <div style={{
-                      width: '42px', height: '42px', borderRadius: '12px',
-                      background: col.icoBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      {ICONOS[n.tipo]}
-                    </div>
-                    {!n.leida && (
-                      <div style={{
-                        position: 'absolute', top: '-2px', right: '-2px',
-                        width: '10px', height: '10px',
-                        background: '#4F46E5', borderRadius: '50%', border: '2px solid white',
-                      }} />
-                    )}
-                  </div>
-
-                  {/* Contenido */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
-                      <p style={{ fontSize: '14px', fontWeight: n.leida ? 600 : 800, color: '#111827', lineHeight: '1.3', flex: 1 }}>
-                        {n.titulo}
-                      </p>
-                      <span style={{ fontSize: '11px', color: '#9CA3AF', flexShrink: 0, marginTop: '1px' }}>
-                        {tiempoRelativo(n.created_at)}
-                      </span>
-                    </div>
-                    <p style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px', lineHeight: '1.5' }}>
-                      {n.mensaje}
-                    </p>
+                  {f.label}
+                  {f.key === 'no_leidas' && noLeidas > 0 && (
                     <span style={{
-                      display: 'inline-block', fontSize: '11px', fontWeight: '600',
-                      color: col.texto, background: col.icoBg, borderRadius: '6px',
-                      padding: '2px 8px', marginTop: '8px',
-                    }}>
-                      {col.label}
-                    </span>
-                  </div>
-                </div>
+                      marginLeft: '8px', background: activo ? 'rgba(255,255,255,0.25)' : '#F43F5E',
+                      color: 'white', borderRadius: '8px',
+                      padding: '2px 8px', fontSize: '11px', fontWeight: '900',
+                    }}>{noLeidas}</span>
+                  )}
+                </button>
               )
             })}
           </div>
-        ))}
+        </div>
 
-        {hayMas && (
-          <button onClick={cargarMas} style={{
-            width: '100%', height: '44px', borderRadius: '12px',
-            background: 'white', border: '1.5px solid #E5E7EB',
-            fontSize: '14px', fontWeight: '700', color: '#6B7280',
-            cursor: 'pointer', marginTop: '4px',
-          }}>
-            Cargar más
-          </button>
-        )}
+        {/* LISTA */}
+        <div style={{ padding: '24px 0' }}>
+          {isLoading && notificaciones.length === 0 && (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#4F46E5]"></div>
+            </div>
+          )}
+
+          {!isLoading && filtradas.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+              <div style={{
+                width: '88px', height: '88px', borderRadius: '32px',
+                background: 'white', margin: '0 auto 24px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.04)',
+              }}>
+                <Bell size={40} color="#D1D5DB" strokeWidth={1.5} />
+              </div>
+              <p style={{ fontSize: '20px', fontWeight: '800', color: '#111827' }}>Todo al día</p>
+              <p style={{ fontSize: '15px', color: '#64748B', marginTop: '8px', fontWeight: 500 }}>
+                No tienes notificaciones pendientes por ahora
+              </p>
+            </div>
+          )}
+
+          {grupos.map(grupo => (
+            <div key={grupo.label} style={{ marginBottom: '32px' }}>
+              <p style={{ fontSize: '13px', fontWeight: '800', color: '#94A3B8', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                {grupo.label}
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }} className="notificaciones-grid">
+                {grupo.items.map(n => {
+                  const col = COLORES[n.tipo] ?? COLORES.sistema
+                  return (
+                    <div key={n.id} onClick={() => handleClick(n)} style={{
+                      display: 'flex', gap: '16px', alignItems: 'flex-start',
+                      padding: '18px',
+                      background: n.leida ? 'white' : '#F5F3FF',
+                      borderRadius: '20px',
+                      border: n.leida ? '1.5px solid #F1F5F9' : `1.5px solid ${col.border}`,
+                      cursor: n.accion_url ? 'pointer' : 'default',
+                      boxShadow: n.leida ? '0 4px 12px rgba(0,0,0,0.03)' : '0 8px 24px rgba(79,70,229,0.08)',
+                      transition: 'all 0.2s ease',
+                    }} className="notificacion-card">
+                      {/* Ícono */}
+                      <div style={{ position: 'relative', flexShrink: 0 }}>
+                        <div style={{
+                          width: '48px', height: '48px', borderRadius: '14px',
+                          background: col.icoBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          boxShadow: `0 4px 12px ${col.icoBg}`,
+                        }}>
+                          {ICONOS[n.tipo]}
+                        </div>
+                        {!n.leida && (
+                          <div style={{
+                            position: 'absolute', top: '-4px', right: '-4px',
+                            width: '12px', height: '12px',
+                            background: '#4F46E5', borderRadius: '50%', border: '2px solid white',
+                          }} />
+                        )}
+                      </div>
+
+                      {/* Contenido */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+                          <p style={{ fontSize: '15px', fontWeight: n.leida ? 700 : 800, color: '#111827', lineHeight: '1.4', flex: 1 }}>
+                            {n.titulo}
+                          </p>
+                          <span style={{ fontSize: '12px', color: '#94A3B8', flexShrink: 0, marginTop: '2px', fontWeight: 600 }}>
+                            {tiempoRelativo(n.created_at)}
+                          </span>
+                        </div>
+                        <p style={{ fontSize: '14px', color: '#64748B', marginTop: '6px', lineHeight: '1.5', fontWeight: 500 }}>
+                          {n.mensaje}
+                        </p>
+                        <span style={{
+                          display: 'inline-block', fontSize: '11px', fontWeight: '800',
+                          color: col.texto, background: col.icoBg, borderRadius: '6px',
+                          padding: '3px 10px', marginTop: '10px', textTransform: 'uppercase',
+                          letterSpacing: '0.04em',
+                        }}>
+                          {col.label}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+
+          {hayMas && (
+            <button onClick={cargarMas} style={{
+              width: '100%', height: '48px', borderRadius: '14px',
+              background: 'white', border: '2px solid #E2E8F0',
+              fontSize: '15px', fontWeight: '800', color: '#64748B',
+              cursor: 'pointer', marginTop: '12px', transition: 'all 0.2s ease',
+            }}>
+              Cargar más notificaciones
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

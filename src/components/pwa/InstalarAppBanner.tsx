@@ -62,12 +62,12 @@ export default function InstalarAppBanner() {
 
   return (
     <div style={{
-      position: 'fixed', bottom: '76px', left: '12px', right: '12px', zIndex: 9000,
+      position: 'fixed', bottom: '76px', left: '50%', transform: visible ? 'translateX(-50%) translateY(0) scale(1)' : 'translateX(-50%) translateY(20px) scale(0.96)',
+      width: 'calc(100% - 24px)', maxWidth: '480px', zIndex: 9000,
       background: 'white', borderRadius: '20px', padding: '16px',
       boxShadow: '0 -4px 0 0 rgba(79,70,229,0.12), 0 8px 40px rgba(0,0,0,0.14)',
       border: '1px solid rgba(79,70,229,0.1)',
       display: 'flex', alignItems: 'center', gap: '12px',
-      transform: visible ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.96)',
       opacity: visible ? 1 : 0,
       transition: 'transform 0.4s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease',
     }}>

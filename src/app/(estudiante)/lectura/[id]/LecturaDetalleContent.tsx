@@ -52,273 +52,188 @@ export default function LecturaDetalleContent({
 
   return (
     <div style={{ minHeight: '100vh', background: '#F5F3FF' }}>
-
-      {/* ===== HERO SECTION ===== */}
+      
+      {/* ===== HEADER (Solo para botón volver y bookmark en Desktop) ===== */}
       <div style={{
-        position: 'relative',
-        width: '100%',
-        height: '300px',
-        overflow: 'hidden',
-        background: obtenerGradientePortada(lectura.id),
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        padding: '20px', display: 'flex', justifyContent: 'space-between',
+        pointerEvents: 'none'
       }}>
-        {/* Imagen si existe */}
-        {lectura.portada_url && (
-          <Image
-            src={lectura.portada_url}
-            alt={lectura.titulo}
-            fill
-            style={{ objectFit: 'cover', zIndex: 1 }}
-            priority
-          />
-        )}
-
-        {/* Ícono de libro si NO hay portada */}
-        {!lectura.portada_url && (
-          <div style={{
-            position: 'absolute', inset: 0, zIndex: 1,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexDirection: 'column', gap: '12px',
-          }}>
-            <div style={{
-              width: '80px', height: '80px',
-              background: 'rgba(255,255,255,0.2)',
-              borderRadius: '20px', backdropFilter: 'blur(8px)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <BookOpen size={40} color="rgba(255,255,255,0.9)" strokeWidth={1.2} />
-            </div>
-            <span style={{
-              fontSize: '12px', fontWeight: 700,
-              color: 'rgba(255,255,255,0.7)',
-              letterSpacing: '0.1em', textTransform: 'uppercase',
-            }}>
-              Sin portada
-            </span>
-          </div>
-        )}
-
-        {/* Gradiente inferior para suavizar transición a la card blanca */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0,
-          height: '140px', zIndex: 2,
-          background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.35) 100%)',
-        }} />
-
-        {/* Botón REGRESAR */}
         <button
           onClick={() => router.back()}
           style={{
-            position: 'absolute', top: '16px', left: '16px', zIndex: 10,
-            width: '38px', height: '38px',
-            background: 'rgba(255,255,255,0.88)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            border: 'none', borderRadius: '50%',
+            width: '44px', height: '44px',
+            background: 'white', borderRadius: '14px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
-            transition: 'transform 0.15s, background 0.15s',
+            cursor: 'pointer', pointerEvents: 'auto',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: 'none',
           }}
         >
-          <ChevronLeft size={20} color="#111827" strokeWidth={2.5} />
+          <ChevronLeft size={22} color="#111827" strokeWidth={2.5} />
         </button>
 
-        {/* Botón BOOKMARK */}
         <button
           onClick={handleToggleFavorito}
           style={{
-            position: 'absolute', top: '16px', right: '16px', zIndex: 10,
-            width: '38px', height: '38px',
-            background: 'rgba(255,255,255,0.88)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            border: 'none', borderRadius: '50%',
+            width: '44px', height: '44px',
+            background: 'white', borderRadius: '14px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
-            transition: 'transform 0.15s',
+            cursor: 'pointer', pointerEvents: 'auto',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: 'none',
           }}
         >
           <Bookmark
-            size={20}
-            color={favoritoLocal ? '#4F46E5' : '#374151'}
+            size={22}
+            color={favoritoLocal ? '#4F46E5' : '#64748B'}
             fill={favoritoLocal ? '#4F46E5' : 'none'}
             strokeWidth={2}
-            style={{
-              transition: 'color 0.2s, fill 0.2s',
-              transform: favoritoLocal ? 'scale(1.15)' : 'scale(1)',
-            }}
           />
         </button>
       </div>
 
-      {/* CONTENT CARD */}
-      <div style={{
-        background: 'white',
-        borderRadius: '28px 28px 0 0',
-        marginTop: '-32px',
-        padding: '28px 20px calc(144px + env(safe-area-inset-bottom, 0px))',
-        position: 'relative',
-        zIndex: 3,
-        minHeight: 'calc(100vh - 260px)',
-        boxShadow: '0 -4px 20px rgba(0,0,0,0.08)',
-      }}>
-
-        {/* Drag handle visual */}
-        <div style={{
-          width: '40px', height: '4px', borderRadius: '99px',
-          background: '#E5E7EB', margin: '0 auto 20px',
-        }} />
-
-        {/* Badge de materia */}
-        {lectura.materias && (
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: '5px',
-            fontSize: '11px', fontWeight: '700', borderRadius: '7px',
-            padding: '3px 10px', letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-            background: '#EEF2FF',
-            color: '#4F46E5',
-          }}>
-            <span style={{
-              width: '5px', height: '5px', borderRadius: '50%',
-              background: '#4F46E5', flexShrink: 0,
-            }} />
-            {lectura.materias.nombre}
-          </span>
-        )}
-
-        {/* Título */}
-        <h1 style={{
-          fontFamily: 'var(--font-playfair, serif)',
-          fontSize: '22px', fontWeight: '800', color: '#111827',
-          lineHeight: '1.25', marginTop: '10px', marginBottom: '6px',
-        }}>
-          {lectura.titulo}
-        </h1>
-
-        {/* Autor con icono */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
-          <User size={13} color="#9CA3AF" strokeWidth={2} />
-          <span style={{ fontSize: '14px', color: '#6B7280', fontWeight: '500' }}>
-            {lectura.autor}
-          </span>
-        </div>
-
-        {/* Fila de metadata (grado, páginas, tiempo) */}
-        <div style={{
-          display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px',
-        }}>
-          {lectura.grados && (
+      <div className="estudiante-container" style={{ padding: '0 0 120px' }}>
+        <div className="lectura-detalle-grid">
+          {/* COLUMNA IZQUIERDA: PORTADA */}
+          <div style={{ position: 'relative' }}>
             <div style={{
-              display: 'flex', alignItems: 'center', gap: '5px',
-              background: '#F5F3FF', borderRadius: '99px',
-              padding: '5px 12px',
-            }}>
-              <GraduationCap size={13} color="#4F46E5" strokeWidth={2} />
-              <span style={{ fontSize: '12px', fontWeight: '600', color: '#4F46E5' }}>
-                {lectura.grados.nombre}
-              </span>
+              width: '100%', height: '400px',
+              borderRadius: '0 0 32px 32px',
+              overflow: 'hidden',
+              background: obtenerGradientePortada(lectura.id),
+              boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+              position: 'relative'
+            }} className="lectura-portada-hero">
+              {lectura.portada_url ? (
+                <Image
+                  src={lectura.portada_url}
+                  alt={lectura.titulo}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  priority
+                />
+              ) : (
+                <div style={{
+                  height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexDirection: 'column', gap: '16px', color: 'rgba(255,255,255,0.8)'
+                }}>
+                  <BookOpen size={64} strokeWidth={1} />
+                  <span style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '12px' }}>Sin Portada</span>
+                </div>
+              )}
             </div>
-          )}
-          {lectura.paginas_total && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '5px',
-              background: '#F0FDF4', borderRadius: '99px', padding: '5px 12px',
-            }}>
-              <FileText size={13} color="#10B981" strokeWidth={2} />
-              <span style={{ fontSize: '12px', fontWeight: '600', color: '#10B981' }}>
-                {lectura.paginas_total} págs.
-              </span>
-            </div>
-          )}
-          {lectura.tiempo_lectura_min && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '5px',
-              background: '#FFF7ED', borderRadius: '99px', padding: '5px 12px',
-            }}>
-              <Clock size={13} color="#F59E0B" strokeWidth={2} />
-              <span style={{ fontSize: '12px', fontWeight: '600', color: '#F59E0B' }}>
-                {lectura.tiempo_lectura_min} min.
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Separador */}
-        <div style={{ height: '1px', background: '#F3F4F6', marginBottom: '20px' }} />
-
-        {/* Descripción */}
-        {lectura.descripcion && (
-          <div style={{ marginBottom: '24px' }}>
-            <p style={{
-              fontSize: '13px', fontWeight: '700', color: '#374151',
-              marginBottom: '8px', textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-            }}>
-              Descripción
-            </p>
-            <p style={{
-              fontSize: '15px', color: '#6B7280',
-              lineHeight: '1.7', fontWeight: '400',
-            }}>
-              {lectura.descripcion}
-            </p>
           </div>
-        )}
 
-        {/* Assignment info */}
-        {asignacion && (
-          <div style={{
-            background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '16px',
-            padding: '16px', marginTop: '24px',
-          }}>
-            <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '8px', textTransform: 'uppercase' }}>
-              Asignación
-            </p>
-            {asignacion.instrucciones && (
-              <p style={{ fontSize: '14px', color: '#475569', marginBottom: '8px' }}>{asignacion.instrucciones}</p>
+          {/* COLUMNA DERECHA: INFO */}
+          <div style={{ padding: '32px 24px' }}>
+            {lectura.materias && (
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                fontSize: '12px', fontWeight: '800', borderRadius: '8px',
+                padding: '4px 12px', background: '#EEF2FF', color: '#4F46E5',
+                textTransform: 'uppercase', letterSpacing: '0.04em'
+              }}>
+                {lectura.materias.nombre}
+              </span>
             )}
-            {asignacion.fecha_limite && (
-              <p style={{ fontSize: '13px', color: fechaLimiteProxima ? '#EF4444' : '#94A3B8' }}>
-                Fecha límite: {formatFecha(asignacion.fecha_limite)}
+
+            <h1 style={{
+              fontSize: '32px', fontWeight: '900', color: '#111827',
+              lineHeight: '1.2', marginTop: '16px', marginBottom: '8px',
+            }}>
+              {lectura.titulo}
+            </h1>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+              <User size={16} color="#94A3B8" />
+              <span style={{ fontSize: '16px', color: '#64748B', fontWeight: 600 }}>{lectura.autor}</span>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '32px' }}>
+              {lectura.grados && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#F1F5F9', borderRadius: '10px', padding: '6px 14px' }}>
+                  <GraduationCap size={16} color="#475569" strokeWidth={2.5} />
+                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>{lectura.grados.nombre}</span>
+                </div>
+              )}
+              {lectura.paginas_total && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#F0FDF4', borderRadius: '10px', padding: '6px 14px' }}>
+                  <FileText size={16} color="#10B981" strokeWidth={2.5} />
+                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#10B981' }}>{lectura.paginas_total} páginas</span>
+                </div>
+              )}
+              {lectura.tiempo_lectura_min && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#FFF7ED', borderRadius: '10px', padding: '6px 14px' }}>
+                  <Clock size={16} color="#F59E0B" strokeWidth={2.5} />
+                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#F59E0B' }}>{lectura.tiempo_lectura_min} min</span>
+                </div>
+              )}
+            </div>
+
+            <div style={{ height: '1.5px', background: '#F1F5F9', marginBottom: '32px' }} />
+
+            <div style={{ marginBottom: '32px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: '900', color: '#111827', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>
+                Sinopsis
+              </h3>
+              <p style={{ fontSize: '16px', color: '#475569', lineHeight: '1.7', fontWeight: 500 }}>
+                {lectura.descripcion || 'Sin descripción disponible para esta lectura.'}
               </p>
+            </div>
+
+            {asignacion && (
+              <div style={{
+                background: '#F8FAFC', border: '2px solid #E2E8F0', borderRadius: '24px',
+                padding: '24px', marginBottom: '24px',
+              }}>
+                <h3 style={{ fontSize: '14px', fontWeight: '900', color: '#111827', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>
+                  Tu Misión
+                </h3>
+                {asignacion.instrucciones && (
+                  <p style={{ fontSize: '15px', color: '#475569', marginBottom: '16px', lineHeight: '1.5', fontWeight: 500 }}>
+                    {asignacion.instrucciones}
+                  </p>
+                )}
+                {asignacion.fecha_limite && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Clock size={16} color={fechaLimiteProxima ? '#EF4444' : '#94A3B8'} />
+                    <span style={{ fontSize: '14px', fontWeight: '700', color: fechaLimiteProxima ? '#EF4444' : '#64748B' }}>
+                      Vence el {formatFecha(asignacion.fecha_limite)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {totalPreguntas > 0 && (
+              <div style={{
+                background: '#F0F9FF', border: '2px solid #BAE6FD',
+                borderRadius: '24px', padding: '24px', display: 'flex', gap: '16px', alignItems: 'flex-start'
+              }}>
+                <HelpCircle size={24} color="#0284C7" strokeWidth={2.5} />
+                <div>
+                  <p style={{ fontSize: '16px', fontWeight: '800', color: '#0369A1' }}>
+                    Evaluación de {totalPreguntas} {totalPreguntas === 1 ? 'pregunta' : 'preguntas'}
+                  </p>
+                  <p style={{ fontSize: '14px', color: '#075985', marginTop: '4px', fontWeight: 500 }}>
+                    Recuerda prestar mucha atención a los detalles para obtener el mejor puntaje.
+                  </p>
+                </div>
+              </div>
             )}
           </div>
-        )}
-
-        {/* Questions info */}
-        {totalPreguntas > 0 && (
-          <div style={{
-            marginTop: '16px', background: '#EFF6FF', border: '1px solid #BFDBFE',
-            borderRadius: '16px', padding: '16px', display: 'flex', gap: '12px'
-          }}>
-            <HelpCircle size={18} color="#2563EB" style={{ marginTop: '2px' }} />
-            <div>
-              <p style={{ fontSize: '14px', fontWeight: '600', color: '#2563EB' }}>
-                {totalPreguntas} {totalPreguntas === 1 ? 'pregunta' : 'preguntas'} de evaluación
-              </p>
-              <p style={{ fontSize: '12px', color: '#475569', marginTop: '2px' }}>
-                Deberás responderlas al terminar la lectura
-              </p>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
 
-      {/* FIXED BOTTOM BAR */}
+      {/* ACTION BAR */}
       <div style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 51,
-        padding: '12px 20px',
-        paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
-        background: 'linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0))',
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 90,
+        padding: '20px 0',
+        paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))',
+        background: 'rgba(255,255,255,0.8)',
+        backdropFilter: 'blur(20px)',
+        borderTop: '1.5px solid #F1F5F9',
       }}>
-        <div style={{ display: 'flex', gap: '10px', maxWidth: '480px', margin: '0 auto' }}>
-
+        <div className="estudiante-container" style={{ padding: '0 20px', display: 'flex', gap: '12px' }}>
           <button
             onClick={() => {
               if (yaCompleto && totalPreguntas > 0 && asignacion) {
@@ -328,53 +243,32 @@ export default function LecturaDetalleContent({
               }
             }}
             style={{
-              flex: 1,
-              height: '52px',
-              background: 'linear-gradient(135deg, #4F46E5, #6D28D9)',
-              border: 'none',
-              borderRadius: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-              boxShadow: '0 6px 20px rgba(79,70,229,0.38)',
-              fontFamily: 'inherit',
+              flex: 1, height: '56px',
+              background: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+              border: 'none', borderRadius: '16px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+              cursor: 'pointer', boxShadow: '0 8px 24px rgba(79,70,229,0.3)',
+              color: 'white', fontSize: '16px', fontWeight: '800',
             }}
           >
-            <BookOpen size={18} color="white" strokeWidth={2} />
-            <span style={{
-              fontSize: '15px',
-              fontWeight: '700',
-              color: 'white',
-              letterSpacing: '0.01em',
-            }}>
-              {yaCompleto && totalPreguntas > 0 ? 'Ver evaluación' : (yaEmpezo ? 'Continuar' : 'Empezar')}
-            </span>
+            <BookOpen size={20} color="white" strokeWidth={2.5} />
+            {yaCompleto && totalPreguntas > 0 ? 'Ver Resultados' : (yaEmpezo ? 'Continuar Lectura' : 'Empezar a Leer')}
           </button>
 
           {pdfUrl && (
             <button
               onClick={() => window.open(pdfUrl, '_blank')}
               style={{
-                width: '52px',
-                height: '52px',
-                background: 'white',
-                border: '1.5px solid #E5E7EB',
-                borderRadius: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                flexShrink: 0,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                fontFamily: 'inherit',
+                width: '56px', height: '56px',
+                background: 'white', border: '2px solid #E2E8F0', borderRadius: '16px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', flexShrink: 0,
               }}
+              title="Descargar PDF"
             >
-              <Download size={18} color="#4F46E5" strokeWidth={2} />
+              <Download size={22} color="#4F46E5" strokeWidth={2.5} />
             </button>
           )}
-
         </div>
       </div>
     </div>

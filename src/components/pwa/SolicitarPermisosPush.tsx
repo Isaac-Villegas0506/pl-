@@ -72,7 +72,8 @@ export default function SolicitarPermisosPush({ usuarioId: _usuarioId }: Props) 
   if (estado === 'granted') {
     return (
       <div style={{
-        position: 'fixed', bottom: '88px', left: '12px', right: '12px', zIndex: 8999,
+        position: 'fixed', bottom: '88px', left: '50%', transform: 'translateX(-50%)',
+        width: 'calc(100% - 24px)', maxWidth: '440px', zIndex: 8999,
         background: '#ECFDF5', border: '1.5px solid #86EFAC', borderRadius: '16px',
         padding: '14px', display: 'flex', alignItems: 'center', gap: '10px',
         boxShadow: '0 4px 16px rgba(16,185,129,0.2)',
@@ -88,7 +89,8 @@ export default function SolicitarPermisosPush({ usuarioId: _usuarioId }: Props) 
   if (estado === 'denied') {
     return (
       <div style={{
-        position: 'fixed', bottom: '88px', left: '12px', right: '12px', zIndex: 8999,
+        position: 'fixed', bottom: '88px', left: '50%', transform: 'translateX(-50%)',
+        width: 'calc(100% - 24px)', maxWidth: '440px', zIndex: 8999,
         background: '#FFF1F2', border: '1.5px solid #FDA4AF', borderRadius: '16px',
         padding: '14px', display: 'flex', alignItems: 'center', gap: '10px',
       }}>
@@ -102,7 +104,8 @@ export default function SolicitarPermisosPush({ usuarioId: _usuarioId }: Props) 
 
   return (
     <div style={{
-      position: 'fixed', bottom: '88px', left: '12px', right: '12px', zIndex: 8999,
+      position: 'fixed', bottom: '88px', left: '50%', transform: 'translateX(-50%)',
+      width: 'calc(100% - 24px)', maxWidth: '440px', zIndex: 8999,
       background: 'white', borderRadius: '20px', padding: '16px',
       boxShadow: '0 8px 32px rgba(0,0,0,0.12)', border: '1px solid rgba(79,70,229,0.1)',
     }}>

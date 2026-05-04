@@ -121,7 +121,7 @@ export default function MisLibrosContent({
   const proximasVencer = asignacionesFiltradas.filter(a => a.fecha_limite && diasRestantes(a.fecha_limite) <= 3 && a.estado !== 'completado')
 
   const abrirPDFOffline = (desc: Descarga) => {
-    router.push(`/lectura/${desc.lectura_id}`) // Idealmente deberíamos pasar un flag offline, pero esto abrirá la página
+    router.push(`/lectura/${desc.lectura_id}`)
   }
 
   return (
@@ -132,412 +132,401 @@ export default function MisLibrosContent({
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(79,70,229,0.06)',
-        paddingBottom: '0',
       }}>
-        <div style={{ padding: '16px 20px 12px' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center',
-            justifyContent: 'space-between',
-          }}>
-            <h1 style={{
-              fontFamily: 'var(--font-playfair, serif)',
-              fontSize: '26px', fontWeight: '800', color: '#111827',
+        <div className="estudiante-container">
+          <div style={{ padding: '24px 20px 16px' }}>
+            <div style={{
+              display: 'flex', alignItems: 'center',
+              justifyContent: 'space-between',
             }}>
-              Mis Libros
-            </h1>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <span style={{
-                fontSize: '12px', fontWeight: '700',
-                color: '#4F46E5', background: '#EEF2FF',
-                borderRadius: '99px', padding: '4px 10px',
+              <h1 style={{
+                fontSize: '32px', fontWeight: '800', color: '#111827',
               }}>
-                {stats.leidas} leídas
-              </span>
-              {stats.enProgreso > 0 && (
+                Mis Libros
+              </h1>
+              <div style={{ display: 'flex', gap: '8px' }}>
                 <span style={{
-                  fontSize: '12px', fontWeight: '700',
-                  color: '#0EA5E9', background: '#E0F2FE',
-                  borderRadius: '99px', padding: '4px 10px',
+                  fontSize: '13px', fontWeight: '700',
+                  color: '#4F46E5', background: '#EEF2FF',
+                  borderRadius: '99px', padding: '5px 14px',
                 }}>
-                  {stats.enProgreso} en curso
+                  {stats.leidas} leídas
                 </span>
-              )}
+                <span className="hide-mobile" style={{
+                  fontSize: '13px', fontWeight: '700',
+                  color: '#0EA5E9', background: '#E0F2FE',
+                  borderRadius: '99px', padding: '5px 14px',
+                }}>
+                  Promedio: {stats.promedio.toFixed(1)}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div style={{
-          display: 'flex', gap: '0',
-          paddingLeft: '16px', paddingRight: '16px',
-        }}>
-          {[
-            { key: 'activas', label: '📋 Asignadas' },
-            { key: 'historial', label: '✅ Historial' },
-            { key: 'offline', label: '⬇️ Offline' },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setTabActiva(tab.key as any)}
-              style={{
-                flex: 1, height: '42px', border: 'none',
-                background: 'transparent', cursor: 'pointer',
-                fontSize: '13px', fontWeight: '700',
-                color: tabActiva === tab.key ? '#4F46E5' : '#9CA3AF',
-                fontFamily: 'inherit',
-                borderBottom: tabActiva === tab.key
-                  ? '2.5px solid #4F46E5'
-                  : '2.5px solid transparent',
-                transition: 'all 0.2s',
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
+          <div style={{
+            display: 'flex', gap: '0',
+            paddingLeft: '20px', paddingRight: '20px',
+          }}>
+            {[
+              { key: 'activas', label: '📋 Asignadas' },
+              { key: 'historial', label: '✅ Historial' },
+              { key: 'offline', label: '⬇️ Offline' },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setTabActiva(tab.key as any)}
+                style={{
+                  flex: 1, height: '48px', border: 'none',
+                  background: 'transparent', cursor: 'pointer',
+                  fontSize: '14px', fontWeight: '700',
+                  color: tabActiva === tab.key ? '#4F46E5' : '#64748B',
+                  fontFamily: 'inherit',
+                  borderBottom: tabActiva === tab.key
+                    ? '3px solid #4F46E5'
+                    : '3px solid transparent',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div style={{ padding: '16px', display: tabActiva === 'activas' ? 'block' : 'none' }}>
-        <div style={{
-          background: 'white', borderRadius: '16px',
-          display: 'flex', alignItems: 'center', padding: '0 16px',
-          height: '48px', marginBottom: '16px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-        }}>
-          <Search size={18} color="#9CA3AF" />
-          <input 
-            value={busqueda} onChange={e => setBusqueda(e.target.value)}
-            placeholder="Buscar por título o autor..."
-            style={{
-              flex: 1, border: 'none', background: 'transparent', outline: 'none',
-              padding: '0 12px', fontSize: '15px', color: '#111827'
-            }}
-          />
-          {busqueda && <X size={18} color="#9CA3AF" onClick={() => setBusqueda('')} />}
+      <div className="estudiante-container" style={{ padding: '24px 20px' }}>
+        {/* TABS CONTENT */}
+        <div style={{ display: tabActiva === 'activas' ? 'block' : 'none' }}>
+          <div style={{
+            background: 'white', borderRadius: '18px',
+            display: 'flex', alignItems: 'center', padding: '0 20px',
+            height: '56px', marginBottom: '24px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+            border: '2px solid #E2E8F0',
+          }}>
+            <Search size={20} color="#94A3B8" />
+            <input 
+              value={busqueda} onChange={e => setBusqueda(e.target.value)}
+              placeholder="Buscar por título o autor..."
+              style={{
+                flex: 1, border: 'none', background: 'transparent', outline: 'none',
+                padding: '0 16px', fontSize: '16px', color: '#111827',
+                fontWeight: 500,
+              }}
+            />
+            {busqueda && <X size={20} color="#94A3B8" onClick={() => setBusqueda('')} style={{ cursor: 'pointer' }} />}
+          </div>
+
+          {proximasVencer.length > 0 && (
+            <div style={{
+              margin: '0 0 24px',
+              background: 'linear-gradient(135deg, #FFFBEB, #FEF3C7)',
+              border: '2px solid #FDE68A',
+              borderRadius: '20px', padding: '20px',
+            }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '10px',
+                marginBottom: '14px',
+              }}>
+                <AlertTriangle size={18} color="#D97706" strokeWidth={2.5} />
+                <p style={{ fontSize: '15px', fontWeight: '800', color: '#92400E' }}>
+                  Próximas a vencer
+                </p>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }} className="proximas-vencer-grid">
+                {proximasVencer.map(asig => (
+                  <div key={asig.id} style={{
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    padding: '10px 0',
+                    borderTop: '1px solid rgba(217,119,6,0.1)',
+                  }}>
+                    <div style={{
+                      width: '8px', height: '8px', borderRadius: '50%',
+                      background: '#D97706', flexShrink: 0,
+                    }} />
+                    <p style={{
+                      flex: 1, fontSize: '14px', fontWeight: '700', color: '#78350F',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
+                      {asig.lectura.titulo}
+                    </p>
+                    <span style={{
+                      fontSize: '12px', fontWeight: '800',
+                      color: diasRestantes(asig.fecha_limite) === 0 ? '#F43F5E' : '#D97706',
+                      flexShrink: 0,
+                      background: 'white', padding: '2px 8px', borderRadius: '6px'
+                    }}>
+                      {diasRestantes(asig.fecha_limite) === 0 ? '¡Hoy!' : `${diasRestantes(asig.fecha_limite)} días`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {asignacionesFiltradas.length === 0 ? (
+            <EmptyState icon={BookOpen} title="No hay libros asignados" description="Las asignaciones de tus profesores aparecerán aquí." />
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }} className="mis-libros-grid">
+              {asignacionesFiltradas.map((asig) => (
+                <div key={asig.id} style={{
+                  background: 'white', borderRadius: '24px',
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                  border: '1px solid rgba(0,0,0,0.03)',
+                  display: 'flex', flexDirection: 'column',
+                }}>
+                  <div style={{ height: '5px', background: estadoColor(asig.estado) }} />
+                  <div style={{ padding: '20px' }}>
+                    <div style={{ display: 'flex', gap: '18px', alignItems: 'flex-start' }}>
+                      <div style={{
+                        width: '80px', height: '108px', borderRadius: '14px',
+                        overflow: 'hidden', flexShrink: 0, position: 'relative',
+                        boxShadow: '0 6px 16px rgba(0,0,0,0.12)',
+                        background: obtenerGradientePortada(asig.lectura_id),
+                      }}>
+                        {asig.lectura.portada_url && (
+                          <Image src={asig.lectura.portada_url} alt=""
+                            fill style={{ objectFit: 'cover' }} />
+                        )}
+                        {descargasOffline.some(d => d.lectura_id === asig.lectura_id) && (
+                          <div style={{
+                            position: 'absolute', top: '6px', right: '6px',
+                            width: '22px', height: '22px',
+                            background: '#10B981', borderRadius: '50%',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            border: '1.5px solid white',
+                          }}>
+                            <WifiOff size={11} color="white" strokeWidth={2.5} />
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{
+                          fontSize: '11px', fontWeight: '800', letterSpacing: '0.06em',
+                          textTransform: 'uppercase',
+                          color: asig.lectura.materia?.color ?? '#4F46E5',
+                          background: (asig.lectura.materia?.color ?? '#4F46E5') + '15',
+                          borderRadius: '6px', padding: '3px 9px',
+                        }}>
+                          {asig.lectura.materia?.nombre ?? 'General'}
+                        </span>
+                        <h3 style={{
+                          fontSize: '18px', fontWeight: '800', color: '#111827',
+                          marginTop: '8px', lineHeight: '1.3',
+                          display: '-webkit-box', WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                        }}>
+                          {asig.lectura.titulo}
+                        </h3>
+                        <p style={{ fontSize: '13px', color: '#64748B', marginTop: '4px', fontWeight: 500 }}>
+                          {asig.lectura.autor}
+                        </p>
+                        {asig.fecha_limite && (
+                          <div style={{
+                            display: 'flex', alignItems: 'center', gap: '5px',
+                            marginTop: '10px',
+                          }}>
+                            <Calendar size={14} color={diasRestantes(asig.fecha_limite) <= 1 ? '#F43F5E' : '#94A3B8'} strokeWidth={2} />
+                            <span style={{
+                              fontSize: '12px', fontWeight: '700',
+                              color: diasRestantes(asig.fecha_limite) <= 1 ? '#F43F5E' : '#64748B',
+                            }}>
+                              {fechaLimiteLabel(asig.fecha_limite)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ flexShrink: 0 }}>
+                        <EstadoBadge estado={asig.estado} nota={asig.nota} />
+                      </div>
+                    </div>
+
+                    {asig.estado === 'en_progreso' && (
+                      <div style={{ marginTop: '16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '12px', color: '#64748B', fontWeight: '700' }}>Progreso</span>
+                          <span style={{ fontSize: '12px', color: '#4F46E5', fontWeight: '800' }}>{asig.porcentaje_progreso ?? 0}%</span>
+                        </div>
+                        <div style={{ height: '8px', background: '#F1F5F9', borderRadius: '99px', overflow: 'hidden' }}>
+                          <div className="progress-bar-animated" style={{
+                            height: '100%', borderRadius: '99px',
+                            background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
+                            width: `${asig.porcentaje_progreso ?? 0}%`,
+                          }} />
+                        </div>
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                      <Button 
+                        variant={asig.estado === 'completado' ? 'outline' : 'primary'}
+                        className="flex-1"
+                        size="md"
+                        onClick={() => router.push(`/lectura/${asig.id}`)}
+                        leftIcon={asig.estado === 'completado' ? <BarChart3 size={18} /> : <BookOpen size={18} />}
+                      >
+                        {asig.estado === 'completado' ? 'Ver resultado' : 'Continuar leyendo'}
+                      </Button>
+
+                      {asig.lectura.pdf_url && (
+                        <BtnDescargar
+                          lecturaId={asig.lectura_id}
+                          lecturaTitulo={asig.lectura.titulo}
+                          pdfUrl={asig.lectura.pdf_url}
+                          descargada={descargasOffline.some(d => d.lectura_id === asig.lectura_id)}
+                          estudianteId={estudianteId}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {proximasVencer.length > 0 && (
-          <div style={{
-            margin: '0 0 16px',
-            background: 'linear-gradient(135deg, #FEF3C7, #FDE68A)',
-            border: '1.5px solid #FCD34D',
-            borderRadius: '18px', padding: '14px 16px',
-          }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              marginBottom: '10px',
-            }}>
-              <AlertTriangle size={16} color="#D97706" strokeWidth={2.5} />
-              <p style={{ fontSize: '13px', fontWeight: '800', color: '#92400E' }}>
-                Próximas a vencer
-              </p>
-            </div>
-            {proximasVencer.map(asig => (
-              <div key={asig.id} style={{
-                display: 'flex', alignItems: 'center', gap: '10px',
-                padding: '6px 0',
-                borderTop: '1px solid rgba(217,119,6,0.15)',
-              }}>
-                <div style={{
-                  width: '6px', height: '6px', borderRadius: '50%',
-                  background: '#D97706', flexShrink: 0,
-                }} />
-                <p style={{
-                  flex: 1, fontSize: '13px', fontWeight: '600', color: '#78350F',
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        {/* HISTORIAL */}
+        <div style={{ display: tabActiva === 'historial' ? 'block' : 'none' }}>
+          {historial.length === 0 ? (
+            <EmptyState icon={BarChart3} title="Aún no completaste ninguna lectura" description="Tus evaluaciones completadas aparecerán aquí." />
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }} className="historial-grid">
+              {historial.map((intento) => (
+                <div key={intento.id} style={{
+                  display: 'flex', gap: '16px', alignItems: 'center',
+                  background: 'white', borderRadius: '20px', padding: '16px',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+                  border: '1px solid #F1F5F9',
                 }}>
-                  {asig.lectura.titulo}
-                </p>
-                <span style={{
-                  fontSize: '11px', fontWeight: '700',
-                  color: diasRestantes(asig.fecha_limite) === 0 ? '#F43F5E' : '#D97706',
-                  flexShrink: 0,
-                }}>
-                  {diasRestantes(asig.fecha_limite) === 0 ? '¡Hoy!' : `${diasRestantes(asig.fecha_limite)}d`}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {asignacionesFiltradas.length === 0 ? (
-          <EmptyState emoji="📚" titulo="No hay libros asignados" subtexto="Las asignaciones que tu profesor te envíe aparecerán aquí." />
-        ) : (
-          asignacionesFiltradas.map((asig) => (
-            <div key={asig.id} style={{
-              background: 'white', borderRadius: '20px',
-              overflow: 'hidden', marginBottom: '12px',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
-              border: '1px solid rgba(0,0,0,0.03)',
-            }}>
-              <div style={{ height: '4px', background: estadoColor(asig.estado) }} />
-              <div style={{ padding: '16px' }}>
-                <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                   <div style={{
-                    width: '72px', height: '96px', borderRadius: '12px',
+                    width: '52px', height: '68px', borderRadius: '10px',
                     overflow: 'hidden', flexShrink: 0, position: 'relative',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                    background: obtenerGradientePortada(asig.lectura_id),
+                    background: obtenerGradientePortada(intento.lectura_id),
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
                   }}>
-                    {asig.lectura.portada_url && (
-                      <Image src={asig.lectura.portada_url} alt=""
-                        fill style={{ objectFit: 'cover' }} />
-                    )}
-                    {descargasOffline.some(d => d.lectura_id === asig.lectura_id) && (
-                      <div style={{
-                        position: 'absolute', top: '4px', right: '4px',
-                        width: '20px', height: '20px',
-                        background: '#10B981', borderRadius: '50%',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        <WifiOff size={10} color="white" strokeWidth={2.5} />
-                      </div>
+                    {intento.lectura.portada_url && (
+                      <Image src={intento.lectura.portada_url}
+                        alt="" fill style={{ objectFit: 'cover' }} />
                     )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{
-                      fontSize: '10px', fontWeight: '700', letterSpacing: '0.06em',
-                      textTransform: 'uppercase',
-                      color: asig.lectura.materia?.color ?? '#4F46E5',
-                      background: (asig.lectura.materia?.color ?? '#4F46E5') + '15',
-                      borderRadius: '5px', padding: '2px 7px',
+                    <p style={{
+                      fontSize: '15px', fontWeight: '800', color: '#111827',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     }}>
-                      {asig.lectura.materia?.nombre ?? 'General'}
-                    </span>
-                    <h3 style={{
-                      fontFamily: 'var(--font-playfair, serif)',
-                      fontSize: '16px', fontWeight: '700', color: '#111827',
-                      marginTop: '6px', lineHeight: '1.3',
-                      display: '-webkit-box', WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical', overflow: 'hidden',
-                    }}>
-                      {asig.lectura.titulo}
-                    </h3>
-                    <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>
-                      {asig.lectura.autor}
+                      {intento.lectura.titulo}
                     </p>
-                    {asig.fecha_limite && (
-                      <div style={{
-                        display: 'flex', alignItems: 'center', gap: '4px',
-                        marginTop: '6px',
-                      }}>
-                        <Calendar size={12} color={diasRestantes(asig.fecha_limite) <= 1 ? '#F43F5E' : diasRestantes(asig.fecha_limite) <= 3 ? '#D97706' : '#9CA3AF'} strokeWidth={2} />
-                        <span style={{
-                          fontSize: '11px', fontWeight: '600',
-                          color: diasRestantes(asig.fecha_limite) <= 1 ? '#F43F5E' : diasRestantes(asig.fecha_limite) <= 3 ? '#D97706' : '#9CA3AF',
-                        }}>
-                          {fechaLimiteLabel(asig.fecha_limite)}
-                        </span>
-                      </div>
-                    )}
+                    <p style={{ fontSize: '13px', color: '#94A3B8', marginTop: '2px', fontWeight: 500 }}>
+                      Completado el {formatFechaCorta(intento.updated_at)}
+                    </p>
                   </div>
-                  <div style={{ flexShrink: 0 }}>
-                    <EstadoBadge estado={asig.estado} nota={asig.nota} />
-                  </div>
-                </div>
-
-                {asig.estado === 'en_progreso' && (
-                  <div style={{ marginTop: '12px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                      <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '600' }}>Progreso de lectura</span>
-                      <span style={{ fontSize: '11px', color: '#4F46E5', fontWeight: '700' }}>{asig.porcentaje_progreso ?? 0}%</span>
-                    </div>
-                    <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '99px', overflow: 'hidden' }}>
-                      <div className="progress-bar-animated" style={{
-                        height: '100%', borderRadius: '99px',
-                        background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
-                        width: `${asig.porcentaje_progreso ?? 0}%`,
-                      }} />
-                    </div>
-                  </div>
-                )}
-
-                {asig.estado === 'completado' && asig.nota !== null && (
                   <div style={{
-                    marginTop: '12px', padding: '10px 14px',
-                    background: asig.nota >= 11 ? '#ECFDF5' : '#FFF1F2',
-                    borderRadius: '12px',
-                    display: 'flex', alignItems: 'center', gap: '8px',
+                    width: '54px', height: '54px', borderRadius: '14px', flexShrink: 0,
+                    background: notaGradiente(intento.nota_final ?? intento.nota_automatica),
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   }}>
-                    <span style={{ fontSize: '20px' }}>
-                      {asig.nota >= 16 ? '🥇' : asig.nota >= 11 ? '✅' : '📝'}
-                    </span>
-                    <div>
-                      <p style={{ fontSize: '13px', fontWeight: '700', color: asig.nota >= 11 ? '#065F46' : '#9F1239' }}>
-                        Nota final: {asig.nota}/20
-                      </p>
-                      <p style={{ fontSize: '11px', color: asig.nota >= 11 ? '#6EE7B7' : '#FDA4AF' }}>
-                        {asig.nota >= 16 ? 'Excelente' : asig.nota >= 11 ? 'Aprobado' : 'Por mejorar'}
-                      </p>
-                    </div>
-                    <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#9CA3AF', fontWeight: '500' }}>
-                      {formatFecha(asig.completado_en ?? new Date())}
-                    </span>
+                    <p style={{ fontSize: '18px', fontWeight: '900', color: 'white', lineHeight: '1' }}>
+                      {(intento.nota_final ?? intento.nota_automatica ?? 0).toFixed(0)}
+                    </p>
+                    <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.9)', fontWeight: '700' }}>
+                      /20
+                    </p>
                   </div>
-                )}
-
-                <div style={{ display: 'flex', gap: '8px', marginTop: '14px' }}>
-                  <Button 
-                    variant={asig.estado === 'completado' ? 'outline' : 'primary'}
-                    className="flex-1"
-                    size="md"
-                    onClick={() => router.push(`/lectura/${asig.id}`)}
-                    leftIcon={asig.estado === 'completado' ? <BarChart3 size={16} /> : <BookOpen size={16} />}
-                  >
-                    {asig.estado === 'completado' ? 'Ver resultado' : asig.estado === 'en_progreso' ? 'Continuar' : 'Empezar'}
-                  </Button>
-
-                  {asig.lectura.pdf_url && (
-                    <BtnDescargar
-                      lecturaId={asig.lectura_id}
-                      lecturaTitulo={asig.lectura.titulo}
-                      pdfUrl={asig.lectura.pdf_url}
-                      descargada={descargasOffline.some(d => d.lectura_id === asig.lectura_id)}
-                      estudianteId={estudianteId}
-                    />
-                  )}
                 </div>
-              </div>
+              ))}
             </div>
-          ))
-        )}
-      </div>
-
-      <div style={{ padding: '16px', display: tabActiva === 'historial' ? 'block' : 'none' }}>
-        {historial.length === 0 ? (
-          <EmptyState emoji="🏆" titulo="Aún no completaste ninguna lectura" subtexto="Tus evaluaciones completadas aparecerán aquí." botonLabel="Ver lecturas asignadas" onBoton={() => setTabActiva('activas')} />
-        ) : (
-          historial.map((intento) => (
-            <div key={intento.id} style={{
-              display: 'flex', gap: '12px', alignItems: 'center',
-              background: 'white', borderRadius: '16px', padding: '12px',
-              marginBottom: '8px',
-              boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
-            }}>
-              <div style={{
-                width: '44px', height: '58px', borderRadius: '8px',
-                overflow: 'hidden', flexShrink: 0, position: 'relative',
-                background: obtenerGradientePortada(intento.lectura_id),
-              }}>
-                {intento.lectura.portada_url && (
-                  <Image src={intento.lectura.portada_url}
-                    alt="" fill style={{ objectFit: 'cover' }} />
-                )}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{
-                  fontSize: '14px', fontWeight: '700', color: '#111827',
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                }}>
-                  {intento.lectura.titulo}
-                </p>
-                <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>
-                  {formatFechaCorta(intento.updated_at)}
-                </p>
-              </div>
-              <div style={{
-                width: '48px', height: '48px', borderRadius: '12px', flexShrink: 0,
-                background: notaGradiente(intento.nota_final ?? intento.nota_automatica),
-                display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center',
-              }}>
-                <p style={{ fontSize: '16px', fontWeight: '800', color: 'white', lineHeight: '1' }}>
-                  {(intento.nota_final ?? intento.nota_automatica ?? 0).toFixed(0)}
-                </p>
-                <p style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', fontWeight: '600' }}>
-                  /20
-                </p>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      <div style={{ display: tabActiva === 'offline' ? 'block' : 'none' }}>
-        <div style={{
-          margin: '12px 16px', background: 'white', borderRadius: '18px', padding: '16px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <HardDrive size={18} color="#4F46E5" strokeWidth={2} />
-              <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827' }}>Almacenamiento offline</p>
-            </div>
-            <p style={{ fontSize: '13px', fontWeight: '700', color: '#4F46E5' }}>{formatBytes(espacioUsado)}</p>
-          </div>
-          <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '99px', overflow: 'hidden' }}>
-            <div style={{
-              height: '100%', borderRadius: '99px',
-              background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
-              width: `${Math.min((espacioUsado / MAX_STORAGE) * 100, 100)}%`,
-              transition: 'width 0.6s ease',
-            }} />
-          </div>
-          <p style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '6px', fontWeight: '500' }}>
-            {descargasOffline.length} PDF{descargasOffline.length !== 1 ? 's' : ''} guardados · Máx. 500 MB
-          </p>
+          )}
         </div>
 
-        {descargasOffline.length === 0 ? (
-          <EmptyState emoji="⬇️" titulo="No hay descargas offline" subtexto="Descarga PDFs para leerlos sin conexión a internet." botonLabel="Ver lecturas asignadas" onBoton={() => setTabActiva('activas')} />
-        ) : (
-          descargasOffline.map((desc) => (
-            <div key={desc.id} style={{
-              display: 'flex', gap: '12px', alignItems: 'center',
-              background: 'white', borderRadius: '16px', padding: '14px',
-              marginBottom: '8px', marginLeft: '16px', marginRight: '16px',
-              boxShadow: '0 1px 6px rgba(0,0,0,0.05)', border: '1.5px solid #F3F4F6',
-            }}>
-              <div style={{
-                width: '48px', height: '48px', borderRadius: '12px', flexShrink: 0,
-                background: 'linear-gradient(135deg, #EF4444, #DC2626)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 4px 10px rgba(239,68,68,0.3)',
-              }}>
-                <FileText size={22} color="white" strokeWidth={1.5} />
+        {/* OFFLINE */}
+        <div style={{ display: tabActiva === 'offline' ? 'block' : 'none' }}>
+          <div style={{
+            background: 'white', borderRadius: '22px', padding: '20px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+            marginBottom: '20px', border: '1.5px solid #F1F5F9',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <HardDrive size={20} color="#4F46E5" strokeWidth={2.5} />
+                <p style={{ fontSize: '15px', fontWeight: '800', color: '#111827' }}>Almacenamiento local</p>
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{
-                  fontSize: '14px', fontWeight: '700', color: '#111827',
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                }}>
-                  {desc.lectura.titulo}
-                </p>
-                <div style={{ display: 'flex', gap: '8px', marginTop: '3px', alignItems: 'center' }}>
-                  <span style={{
-                    fontSize: '11px', color: '#10B981', fontWeight: '700',
-                    background: '#D1FAE5', borderRadius: '5px', padding: '1px 6px',
-                  }}>
-                    Offline ✓
-                  </span>
-                  <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '500' }}>
-                    {formatBytes(desc.archivo_tamanio ?? 0)}
-                  </span>
-                  {desc.ultima_apertura && (
-                    <span style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                      · {formatTiempoRelativo(desc.ultima_apertura)}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                <button onClick={() => abrirPDFOffline(desc)} style={{
-                  width: '38px', height: '38px', borderRadius: '10px',
-                  background: '#EEF2FF', border: 'none', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <BookOpen size={16} color="#4F46E5" strokeWidth={2} />
-                </button>
-                <button style={{
-                  width: '38px', height: '38px', borderRadius: '10px',
-                  background: '#FFF1F2', border: 'none', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Trash2 size={16} color="#F43F5E" strokeWidth={2} />
-                </button>
-              </div>
+              <p style={{ fontSize: '15px', fontWeight: '900', color: '#4F46E5' }}>{formatBytes(espacioUsado)}</p>
             </div>
-          ))
-        )}
+            <div style={{ height: '10px', background: '#F1F5F9', borderRadius: '99px', overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', borderRadius: '99px',
+                background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
+                width: `${Math.min((espacioUsado / MAX_STORAGE) * 100, 100)}%`,
+                transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+              }} />
+            </div>
+            <p style={{ fontSize: '12px', color: '#64748B', marginTop: '10px', fontWeight: '600' }}>
+              {descargasOffline.length} libros disponibles sin conexión · Límite de 500 MB
+            </p>
+          </div>
+
+          {descargasOffline.length === 0 ? (
+            <EmptyState icon={HardDrive} title="No hay descargas offline" description="Descarga tus libros favoritos para leerlos en cualquier lugar." />
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }} className="offline-grid">
+              {descargasOffline.map((desc) => (
+                <div key={desc.id} style={{
+                  display: 'flex', gap: '16px', alignItems: 'center',
+                  background: 'white', borderRadius: '20px', padding: '16px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1.5px solid #F1F5F9',
+                }}>
+                  <div style={{
+                    width: '56px', height: '56px', borderRadius: '14px', flexShrink: 0,
+                    background: 'linear-gradient(135deg, #EF4444, #B91C1C)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 6px 12px rgba(239,68,68,0.25)',
+                  }}>
+                    <FileText size={26} color="white" strokeWidth={2} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{
+                      fontSize: '15px', fontWeight: '800', color: '#111827',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
+                      {desc.lectura.titulo}
+                    </p>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '4px', alignItems: 'center' }}>
+                      <span style={{
+                        fontSize: '11px', color: '#059669', fontWeight: '800',
+                        background: '#D1FAE5', borderRadius: '6px', padding: '2px 8px',
+                      }}>
+                        Disponible offline
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '600' }}>
+                        {formatBytes(desc.archivo_tamanio ?? 0)}
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                    <button onClick={() => abrirPDFOffline(desc)} style={{
+                      width: '42px', height: '42px', borderRadius: '12px',
+                      background: '#F5F3FF', border: 'none', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      boxShadow: '0 2px 6px rgba(79,70,229,0.1)',
+                    }}>
+                      <BookOpen size={18} color="#4F46E5" strokeWidth={2.5} />
+                    </button>
+                    <button style={{
+                      width: '42px', height: '42px', borderRadius: '12px',
+                      background: '#FFF1F2', border: 'none', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Trash2 size={18} color="#F43F5E" strokeWidth={2.5} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -1,17 +1,16 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Search, XCircle, SearchX } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Search, XCircle, SearchX, Bookmark, BookOpen, Bell, SlidersHorizontal, ChevronDown } from 'lucide-react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
-import { LecturaCard } from '@/components/lecturas'
 import { EmptyState, Spinner } from '@/components/ui'
+import { obtenerGradientePortada } from '@/lib/utils'
 import type { LecturaConRelaciones } from '@/types/app.types'
 import type { FiltrosOpciones, FiltrosActivos } from './types'
 import { getLecturasExplorar } from './queries'
-import FiltrosBarra from './FiltrosBarra'
 import FiltroModal from './FiltroModal'
-import LecturaSkeletonCard from './LecturaSkeletonCard'
 
 interface ExplorarContentProps {
   lecturasIniciales: LecturaConRelaciones[]
@@ -29,7 +28,6 @@ export default function ExplorarContent({
   filtrosIniciales,
 }: ExplorarContentProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const searchInputRef = useRef<HTMLInputElement>(null)
   const sentinelRef = useRef<HTMLDivElement>(null)
   const supabaseRef = useRef(createClient())
@@ -42,9 +40,10 @@ export default function ExplorarContent({
   const [hasMore, setHasMore] = useState(lecturasIniciales.length < totalInicial)
   const [error, setError] = useState(false)
 
-  const [busqueda, setBusqueda] = useState(filtrosIniciales.q)
+  const [busqueda, setBusqueda] = useState(filtrosIniciales.q || '')
   const [filtros, setFiltros] = useState<FiltrosActivos>(filtrosIniciales)
   const [filtroAbierto, setFiltroAbierto] = useState<FiltroKey | null>(null)
+  const [orden, setOrden] = useState('Relevancia')
 
   // Sync URL with filters
   const syncUrl = useCallback(
@@ -64,7 +63,7 @@ export default function ExplorarContent({
   // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (busqueda !== filtros.q) {
+      if (busqueda !== (filtros.q || '')) {
         const newFiltros = { ...filtros, q: busqueda }
         setFiltros(newFiltros)
         ejecutarBusqueda(newFiltros)
@@ -142,14 +141,6 @@ export default function ExplorarContent({
     syncUrl(clean)
   }
 
-  function clearSearch() {
-    setBusqueda('')
-    const newFiltros = { ...filtros, q: '' }
-    setFiltros(newFiltros)
-    ejecutarBusqueda(newFiltros)
-    syncUrl(newFiltros)
-  }
-
   function getDropdownOpciones(): { id: string; nombre: string }[] {
     if (filtroAbierto === 'grado') return filtrosOpciones.grados.map((g) => ({ id: g.id, nombre: g.nombre }))
     if (filtroAbierto === 'materia') return filtrosOpciones.materias.map((m) => ({ id: m.id, nombre: m.nombre }))
@@ -158,153 +149,302 @@ export default function ExplorarContent({
     return []
   }
 
+  function getFiltroLabel(key: FiltroKey): string {
+    const labels: Record<FiltroKey, string> = {
+      grado: 'Grado',
+      materia: 'Materia',
+      nivel: 'Nivel',
+      autor: 'Autor',
+    }
+    return labels[key]
+  }
+
   function getDropdownTitulo(): string {
-    if (filtroAbierto === 'grado') return 'Filtrar por Grado'
-    if (filtroAbierto === 'materia') return 'Filtrar por Materia'
-    if (filtroAbierto === 'nivel') return 'Filtrar por Nivel'
-    if (filtroAbierto === 'autor') return 'Filtrar por Autor'
-    return ''
+    if (!filtroAbierto) return ''
+    return `Filtrar por ${getFiltroLabel(filtroAbierto)}`
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#F5F3FF' }}>
-      {/* HEADER STICKY — incluye búsqueda y filtros */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 40,
-        background: 'white',
-        borderBottom: '1px solid #F1F5F9',
-      }}>
-        {/* Fila del título */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '20px 16px 12px',
-          maxWidth: '480px', margin: '0 auto',
-        }}>
-          <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#111827' }}>Explorar</h1>
-          <button
-            onClick={() => searchInputRef.current?.focus()}
-            style={{ cursor: 'pointer', background: 'none', border: 'none', display: 'flex', alignItems: 'center' }}
-          >
-            <Search size={22} color="#111827" strokeWidth={2} />
-          </button>
-        </div>
+    <div style={{ minHeight: '100vh', background: '#F8FAFF', padding: '32px 24px 100px' }}>
+      <div className="estudiante-container">
+        
+        {/* BEGIN: Header Section */}
+        <header style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '24px',
+          marginBottom: '40px',
+        }} className="explorar-header-row">
+          <div style={{ flexShrink: 0 }}>
+            <h1 style={{ fontSize: '30px', fontWeight: 800, color: '#0F172A', fontFamily: 'var(--font-nunito)' }}>
+              Explorar
+            </h1>
+            <p style={{ fontSize: '14px', color: '#64748B', marginTop: '4px', fontWeight: 500 }}>
+              Encuentra tu próxima gran aventura entre cientos de libros.
+            </p>
+          </div>
 
-        {/* Barra de búsqueda */}
-        <div style={{ padding: '0 16px 12px', maxWidth: '480px', margin: '0 auto' }}>
           <div style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            background: '#F8FAFC',
-            border: '1.5px solid #E5E7EB',
-            borderRadius: '14px',
-            padding: '0 14px',
-            height: '46px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            flex: 1,
+            maxWidth: '100%',
           }}>
-            <Search size={16} color="#9CA3AF" strokeWidth={1.5} style={{ flexShrink: 0 }} />
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              placeholder="Buscar libros, autores..."
+            <div style={{
+              position: 'relative',
+              flex: 1,
+              background: 'white',
+              borderRadius: '20px',
+              padding: '0 16px 0 48px',
+              height: '56px',
+              display: 'flex',
+              alignItems: 'center',
+              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)',
+              border: '2px solid transparent',
+              transition: 'all 0.2s',
+            }}>
+              <Search 
+                size={20} 
+                color="#94A3B8" 
+                style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} 
+              />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder="Buscar libros, autores..."
+                style={{
+                  width: '100%',
+                  border: 'none',
+                  outline: 'none',
+                  background: 'transparent',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  color: '#0F172A',
+                }}
+              />
+              {busqueda && (
+                <button 
+                  onClick={() => setBusqueda('')} 
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+                >
+                  <XCircle size={18} color="#CBD5E1" />
+                </button>
+              )}
+            </div>
+
+            <button style={{
+              width: '56px', height: '56px',
+              background: 'white', border: 'none', borderRadius: '20px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)',
+              cursor: 'pointer', color: '#64748B'
+            }}>
+              <Bell size={22} />
+            </button>
+          </div>
+        </header>
+
+        {/* BEGIN: Filter Section */}
+        <section style={{ marginBottom: '40px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={limpiarTodo}
               style={{
-                flex: 1, border: 'none', outline: 'none',
-                background: 'transparent', fontSize: '14px',
-                color: '#111827', fontFamily: 'inherit',
+                padding: '10px 20px',
+                background: Object.values(filtros).every(v => !v) ? '#4F46E5' : 'white',
+                color: Object.values(filtros).every(v => !v) ? 'white' : '#64748B',
+                borderRadius: '999px',
+                fontSize: '14px',
+                fontWeight: 700,
+                border: Object.values(filtros).every(v => !v) ? 'none' : '1.5px solid #E2E8F0',
+                cursor: 'pointer',
+                boxShadow: Object.values(filtros).every(v => !v) ? '0 4px 12px rgba(79, 70, 229, 0.2)' : 'none',
               }}
-            />
-            {busqueda && (
-              <button onClick={clearSearch} style={{ cursor: 'pointer', background: 'none', border: 'none', display: 'flex' }}>
-                <XCircle size={16} color="#9CA3AF" />
+            >
+              Todos
+            </button>
+            
+            {(['grado', 'materia', 'autor', 'nivel'] as FiltroKey[]).map((key) => (
+              <button
+                key={key}
+                onClick={() => setFiltroAbierto(key)}
+                style={{
+                  padding: '10px 20px',
+                  background: filtros[key] ? '#EEF2FF' : 'white',
+                  color: filtros[key] ? '#4F46E5' : '#64748B',
+                  borderRadius: '999px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  border: filtros[key] ? '1.5px solid #4F46E5' : '1.5px solid #E2E8F0',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                {filtros[key] || getFiltroLabel(key)}
+                <ChevronDown size={14} />
               </button>
-            )}
+            ))}
+          </div>
+        </section>
+
+        {/* BEGIN: Results Info */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '32px',
+        }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#0F172A' }}>
+            {isLoading ? 'Buscando...' : `${total} ${total === 1 ? 'lectura encontrada' : 'lecturas encontradas'}`}
+          </h2>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#64748B', fontWeight: 600 }}>
+            <span>Ordenar por:</span>
+            <select 
+              value={orden}
+              onChange={(e) => setOrden(e.target.value)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#4F46E5',
+                fontWeight: 800,
+                cursor: 'pointer',
+                outline: 'none',
+              }}
+            >
+              <option>Relevancia</option>
+              <option>Más recientes</option>
+              <option>Populares</option>
+            </select>
           </div>
         </div>
 
-        {/* Chips de filtros en scroll horizontal */}
-        <div style={{ padding: '0 16px 14px', maxWidth: '480px', margin: '0 auto' }}>
-          <FiltrosBarra
-            filtros={filtros}
-            filtrosOpciones={filtrosOpciones}
-            onLimpiarTodo={limpiarTodo}
-            onAbrirDropdown={(key) => setFiltroAbierto(key)}
-            onLimpiarFiltro={(key) => handleFiltroChange(key, undefined)}
+        {/* BEGIN: Grid Content */}
+        {isLoading ? (
+          <div className="explorar-premium-grid">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ aspectRatio: '3/4', background: '#E2E8F0', borderRadius: '32px', animation: 'pulse 1.5s infinite' }} />
+                <div style={{ height: '20px', width: '60%', background: '#E2E8F0', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+                <div style={{ height: '24px', width: '90%', background: '#E2E8F0', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <EmptyState
+            icon={SearchX}
+            title="Error al cargar lecturas"
+            description="Hubo un problema de conexión. Intenta de nuevo."
+            action={{ label: 'Reintentar', onClick: () => ejecutarBusqueda(filtros) }}
           />
-        </div>
-      </div>
-
-      {/* RESULTADOS */}
-      <div style={{ flex: 1, padding: '12px 16px 24px' }}>
-        <div style={{ maxWidth: '480px', margin: '0 auto' }}>
-          {/* Contador */}
-          {!isLoading && !error && (
-            <p className="text-sm text-[#94A3B8] mb-3">
-              {total} {total === 1 ? 'lectura encontrada' : 'lecturas encontradas'}
-            </p>
-          )}
-
-          {/* Loading inicial */}
-          {isLoading && (
-            <div className="space-y-3">
-              {[1, 2, 3, 4].map((i) => (
-                <LecturaSkeletonCard key={i} />
-              ))}
-            </div>
-          )}
-
-          {/* Error */}
-          {error && !isLoading && (
-            <EmptyState
-              icon={SearchX}
-              title="Error al cargar lecturas"
-              description="Intenta de nuevo."
-              action={{ label: 'Reintentar', onClick: () => ejecutarBusqueda(filtros) }}
-            />
-          )}
-
-          {/* Sin resultados */}
-          {!isLoading && !error && lecturas.length === 0 && (
-            <EmptyState
-              icon={SearchX}
-              title="Sin resultados"
-              description="Intenta con otros términos o cambia los filtros"
-              action={{ label: 'Limpiar filtros', onClick: limpiarTodo }}
-            />
-          )}
-
-          {/* Lista */}
-          {!isLoading && !error && lecturas.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {lecturas.map((lectura) => (
-                <LecturaCard
+        ) : lecturas.length === 0 ? (
+          <EmptyState
+            icon={SearchX}
+            title="Sin resultados"
+            description="No encontramos libros que coincidan con tu búsqueda."
+            action={{ label: 'Limpiar filtros', onClick: limpiarTodo }}
+          />
+        ) : (
+          <div className="explorar-premium-grid">
+            {lecturas.map((lectura) => {
+              const gradient = obtenerGradientePortada(lectura.id)
+              return (
+                <div
                   key={lectura.id}
-                  lectura={lectura}
-                  variant="horizontal"
-                  onPress={() => router.push(`/lectura/${lectura.id}`)}
-                />
-              ))}
-            </div>
-          )}
+                  onClick={() => router.push(`/lectura/${lectura.id}`)}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '16px', cursor: 'pointer' }}
+                  className="group"
+                >
+                  <div 
+                    style={{
+                      position: 'relative',
+                      aspectRatio: '3/4',
+                      background: gradient,
+                      borderRadius: '32px',
+                      overflow: 'hidden',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.3s ease',
+                    }}
+                    className="book-card-container"
+                  >
+                    <button 
+                      style={{
+                        position: 'absolute', top: '16px', right: '16px',
+                        width: '40px', height: '40px',
+                        background: 'rgba(255,255,255,0.9)',
+                        backdropFilter: 'blur(8px)',
+                        border: 'none', borderRadius: '50%',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#4F46E5', zIndex: 10,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                      }}
+                    >
+                      <Bookmark size={20} />
+                    </button>
+                    
+                    {lectura.portada_url ? (
+                      <Image 
+                        src={lectura.portada_url} 
+                        alt={lectura.titulo} 
+                        fill 
+                        style={{ objectFit: 'cover' }} 
+                      />
+                    ) : (
+                      <BookOpen size={64} color="rgba(255,255,255,0.3)" strokeWidth={1.5} />
+                    )}
+                  </div>
+                  
+                  <div style={{ padding: '0 8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <span style={{ 
+                      fontSize: '10px', 
+                      fontWeight: 900, 
+                      textTransform: 'uppercase', 
+                      letterSpacing: '0.1em', 
+                      color: '#4F46E5' 
+                    }}>
+                      {lectura.materias?.nombre || 'General'}
+                    </span>
+                    <h3 style={{ 
+                      fontSize: '17px', 
+                      fontWeight: 800, 
+                      color: '#0F172A', 
+                      lineHeight: '1.2',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}>
+                      {lectura.titulo}
+                    </h3>
+                    <p style={{ fontSize: '13px', color: '#64748B', fontWeight: 500 }}>
+                      {lectura.autor}
+                    </p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
 
-          {/* Sentinel para infinite scroll */}
-          <div ref={sentinelRef} className="h-4" />
-
-          {/* Loading more */}
-          {isLoadingMore && (
-            <div className="flex justify-center py-4">
-              <Spinner size="md" />
-            </div>
-          )}
-
-          {/* No more results */}
-          {!hasMore && lecturas.length > 0 && !isLoading && (
-            <p className="text-sm text-[#94A3B8] text-center py-4">
-              Has visto todas las lecturas
-            </p>
-          )}
+        {/* Sentinel for infinite scroll */}
+        <div ref={sentinelRef} style={{ height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {isLoadingMore && <Spinner size="md" />}
         </div>
+
+        {!hasMore && lecturas.length > 0 && (
+          <p style={{ textAlign: 'center', fontSize: '14px', color: '#94A3B8', fontWeight: 600, padding: '20px 0' }}>
+            Has llegado al final de la biblioteca ✨
+          </p>
+        )}
       </div>
 
-      {/* FILTRO MODAL */}
       <FiltroModal
         isOpen={!!filtroAbierto}
         onClose={() => setFiltroAbierto(null)}
@@ -315,6 +455,37 @@ export default function ExplorarContent({
           if (filtroAbierto) handleFiltroChange(filtroAbierto, value)
         }}
       />
+
+      <style jsx global>{`
+        .explorar-premium-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px 16px;
+        }
+
+        @media (min-width: 640px) {
+          .explorar-premium-grid { grid-template-columns: repeat(3, 1fr); gap: 32px 24px; }
+        }
+
+        @media (min-width: 1024px) {
+          .explorar-premium-grid { grid-template-columns: repeat(4, 1fr); }
+          .explorar-header-row { flex-direction: row !important; align-items: center !important; }
+        }
+
+        @media (min-width: 1280px) {
+          .explorar-premium-grid { grid-template-columns: repeat(5, 1fr); }
+        }
+
+        .book-card-container:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
     </div>
   )
 }
