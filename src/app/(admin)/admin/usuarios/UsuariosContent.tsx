@@ -33,6 +33,7 @@ interface Props {
   pagina: number
   totalPaginas: number
   filtrosActivos: FiltrosUsuario
+  roleStats?: { estudiantes: number; profesores: number; admins: number }
 }
 
 export default function UsuariosContent({
@@ -41,6 +42,7 @@ export default function UsuariosContent({
   pagina,
   totalPaginas,
   filtrosActivos,
+  roleStats,
 }: Props) {
   const router = useRouter()
   const [usuarios, setUsuarios] = useState(usuariosIniciales)
@@ -102,6 +104,34 @@ export default function UsuariosContent({
   return (
     <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
       <AdminTopBar title="Usuarios" subtitle={`${total} registros`} />
+
+      {/* USER DISTRIBUTION */}
+      {roleStats && (
+        <div style={{ padding: '12px 16px 0' }}>
+          <section style={{
+            background: 'white', borderRadius: '12px', border: '1px solid #C9C4D7',
+            padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#191C1E', marginBottom: '12px' }}>Distribución</h2>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              {[
+                { label: 'Estudiantes', value: roleStats.estudiantes, bg: '#62FAE3', color: '#005047' },
+                { label: 'Profesores', value: roleStats.profesores, bg: '#E6DEFF', color: '#481BC6' },
+                { label: 'Admins', value: roleStats.admins, bg: '#191C1E', color: 'white' },
+              ].map(chip => (
+                <div key={chip.label} style={{
+                  flex: 1, padding: '14px 12px', borderRadius: '12px',
+                  background: chip.bg, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', gap: '2px',
+                }}>
+                  <span style={{ fontSize: '22px', fontWeight: 700, color: chip.color }}>{chip.value}</span>
+                  <span style={{ fontSize: '10px', fontWeight: 600, color: chip.color, opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{chip.label}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
 
       {/* BÚSQUEDA */}
       <div style={{

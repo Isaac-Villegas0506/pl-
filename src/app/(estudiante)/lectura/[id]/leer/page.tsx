@@ -27,7 +27,7 @@ export default async function LeerPage({ params }: PageProps) {
   // Get lectura basic info
   const { data: lecturaRaw } = await supabase
     .from('lecturas')
-    .select('id, titulo, autor')
+    .select('id, titulo, autor, portada_url')
     .eq('id', id)
     .single()
 
@@ -46,10 +46,11 @@ export default async function LeerPage({ params }: PageProps) {
   const archivo = archivoRaw as Record<string, unknown> | null
   if (!archivo) redirect(`/lectura/${id}`)
 
-  const [progreso, totalPreguntas, asignacion] = await Promise.all([
+  const [progreso, totalPreguntas, asignacion, { data: favorito }] = await Promise.all([
     getProgresoLectura(supabase, estudianteId, id),
     getTotalPreguntas(supabase, id),
     getAsignacionActiva(supabase, estudianteId, id),
+    supabase.from('favoritos').select('id').eq('usuario_id', estudianteId).eq('lectura_id', id).maybeSingle(),
   ])
 
   return (
@@ -58,10 +59,12 @@ export default async function LeerPage({ params }: PageProps) {
       lecturaId={id}
       lecturaTitulo={lectura.titulo as string}
       lecturaAutor={lectura.autor as string}
+      portadaUrl={lectura.portada_url as string | null}
       asignacionId={asignacion?.id ?? null}
       totalPreguntas={totalPreguntas}
       paginaInicial={progreso?.pagina_actual ?? 1}
       estudianteId={estudianteId}
+      esFavoritoInicial={!!favorito}
     />
   )
 }

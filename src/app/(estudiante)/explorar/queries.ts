@@ -13,13 +13,25 @@ export async function getFiltrosOpciones(supabase: TypedClient): Promise<Filtros
     supabase.from('lecturas').select('autor').eq('es_global', true).eq('estado', 'publicado'),
   ])
 
-  const grados = ((gradosRes.data as Record<string, unknown>[] | null) ?? [])
+  const gradosRaw = ((gradosRes.data as Record<string, unknown>[] | null) ?? [])
     .filter((g) => (g.nombre as string).toLowerCase().includes('secundaria'))
     .map((g) => ({
       id: g.id as string,
       nombre: g.nombre as string,
       orden: (g.orden as number) ?? 0,
     }))
+
+  // Deduplicate grades by extracting the grade number
+  const seenNumbers = new Set<string>()
+  const grados = gradosRaw
+    .sort((a, b) => a.orden - b.orden)
+    .filter((g) => {
+      // Extract the leading number (1, 2, 3, 4, 5) from names like "1ro Secundaria", "1° Secundaria", etc.
+      const num = g.nombre.match(/^(\d)/)?.[1]
+      if (!num || seenNumbers.has(num)) return false
+      seenNumbers.add(num)
+      return true
+    })
 
   const materias = ((materiasRes.data as Record<string, unknown>[] | null) ?? []).map((m) => ({
     id: m.id as string,

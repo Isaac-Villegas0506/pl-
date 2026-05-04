@@ -91,6 +91,16 @@ export default async function UsuariosPage({
   const total = (count as number) ?? 0
   const totalPaginas = Math.ceil(total / POR_PAGINA)
 
+  const [
+    { count: countEstudiantes },
+    { count: countProfesores },
+    { count: countAdmins },
+  ] = await Promise.all([
+    sb.from('usuarios').select('id', { count: 'exact', head: true }).eq('rol', 'estudiante').eq('activo', true),
+    sb.from('usuarios').select('id', { count: 'exact', head: true }).eq('rol', 'profesor').eq('activo', true),
+    sb.from('usuarios').select('id', { count: 'exact', head: true }).eq('rol', 'administrador').eq('activo', true),
+  ])
+
   return (
     <UsuariosContent
       usuarios={usuarios}
@@ -98,6 +108,11 @@ export default async function UsuariosPage({
       pagina={pagina}
       totalPaginas={totalPaginas}
       filtrosActivos={filtros}
+      roleStats={{
+        estudiantes: (countEstudiantes as number) ?? 0,
+        profesores: (countProfesores as number) ?? 0,
+        admins: (countAdmins as number) ?? 0,
+      }}
     />
   )
 }

@@ -166,3 +166,10 @@ input[type="number"]::-webkit-outer-spin-button {
 .progress-bar-animated {
   animation: progressBar 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ── ADMIN DASHBOARD ─────────────────────── */
+@media (min-width: 1024px) {
+  .admin-dashboard-grid {
+    grid-template-columns: 2fr 1fr !important;
+  }
+}

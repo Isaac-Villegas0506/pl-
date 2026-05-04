@@ -165,10 +165,93 @@
 .notificacion-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.06); }
 
 .perfil-stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-@media (min-width: 1024px) { .perfil-stats-grid { grid-template-columns: repeat(4, 1fr); } .perfil-tab-stats-grid { grid-template-columns: 1.5fr 1fr; } }
+@media (min-width: 1024px) { .perfil-stats-grid { grid-template-columns: repeat(4, 1fr); } .perfil-tab-stats-grid { grid-template-columns: 1.5fr 1fr; } .perfil-detailed-grid { grid-template-columns: 1fr 1fr !important; } }
 
 .lectura-detalle-grid { display: grid; grid-template-columns: 1fr; }
-@media (min-width: 1024px) { .lectura-detalle-grid { grid-template-columns: 400px 1fr; gap: 40px; padding-top: 40px; } .lectura-portada-hero { height: 560px !important; border-radius: 32px !important; position: sticky !important; top: 40px; } }
+@media (min-width: 1024px) { 
+  .lectura-detalle-grid { 
+    grid-template-columns: 440px 1fr; 
+    gap: 60px; 
+    padding: 60px 0; 
+  } 
+  .lectura-portada-hero { 
+    height: 600px !important; 
+    border-radius: 40px !important; 
+    position: sticky !important; 
+    top: 40px; 
+    box-shadow: 0 30px 60px rgba(0,0,0,0.15) !important;
+  } 
+}
+
+@media (min-width: 1024px) {
+  .lectura-action-bar,
+  .lectura-floating-header {
+    left: 240px !important;
+  }
+  .lectura-floating-header {
+    justify-content: flex-end !important;
+  }
+  .mis-libros-header {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  .fixed-action-bar {
+    left: 240px !important;
+  }
+  .reader-container {
+    left: 240px !important;
+  }
+  .lector-main-area {
+    align-items: center !important;
+    padding-left: 48px !important;
+    padding-right: 48px !important;
+  }
+  .lector-article {
+    flex-direction: row !important;
+    min-height: 70vh;
+  }
+  .lector-portada {
+    width: 42% !important;
+    min-height: auto !important;
+    border-bottom: none !important;
+    border-right: 1px solid #E2E8F0 !important;
+  }
+}
+
+.mis-libros-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Mobile Action Bar Adjustment */
+@media (max-width: 1023px) {
+  .lectura-action-bar {
+    padding: 0 16px !important;
+    height: 84px !important;
+    justify-content: space-between !important;
+  }
+  .lectura-action-bar > div:last-child {
+    width: 100% !important;
+    display: flex !important;
+    gap: 10px !important;
+  }
+  .btn-descargar-footer {
+    width: 52px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+  .btn-continuar-footer {
+    flex: 1 !important;
+    padding: 0 16px !important;
+    height: 52px !important;
+    font-size: 15px !important;
+    white-space: nowrap !important;
+  }
+}
 
 /* ─── VISIBILITY ─── */
 @media (min-width: 1024px) {

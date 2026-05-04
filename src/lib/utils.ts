@@ -36,7 +36,8 @@ export function diasRestantes(fechaLimite: string | null): number {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
 }
 
-export function fechaLimiteLabel(fechaLimite: string): string {
+export function fechaLimiteLabel(fechaLimite: string | null): string {
+  if (!fechaLimite) return 'Sin fecha límite'
   const dias = diasRestantes(fechaLimite)
   if (dias === 0) return '¡Vence hoy!'
   if (dias === 1) return 'Vence mañana'

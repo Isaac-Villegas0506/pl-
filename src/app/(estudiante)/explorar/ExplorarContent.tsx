@@ -267,28 +267,37 @@ export default function ExplorarContent({
               Todos
             </button>
             
-            {(['grado', 'materia', 'autor', 'nivel'] as FiltroKey[]).map((key) => (
-              <button
-                key={key}
-                onClick={() => setFiltroAbierto(key)}
-                style={{
-                  padding: '10px 20px',
-                  background: filtros[key] ? '#EEF2FF' : 'white',
-                  color: filtros[key] ? '#4F46E5' : '#64748B',
-                  borderRadius: '999px',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  border: filtros[key] ? '1.5px solid #4F46E5' : '1.5px solid #E2E8F0',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
-                {filtros[key] || getFiltroLabel(key)}
-                <ChevronDown size={14} />
-              </button>
-            ))}
+            {(['grado', 'materia', 'autor'] as FiltroKey[]).map((key) => {
+              const valor = filtros[key]
+              let label = getFiltroLabel(key)
+              if (valor) {
+                if (key === 'grado') label = filtrosOpciones.grados.find(g => g.id === valor)?.nombre ?? label
+                else if (key === 'materia') label = filtrosOpciones.materias.find(m => m.id === valor)?.nombre ?? label
+                else label = valor
+              }
+              return (
+                <button
+                  key={key}
+                  onClick={() => setFiltroAbierto(key)}
+                  style={{
+                    padding: '10px 20px',
+                    background: valor ? '#EEF2FF' : 'white',
+                    color: valor ? '#4F46E5' : '#64748B',
+                    borderRadius: '999px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    border: valor ? '1.5px solid #4F46E5' : '1.5px solid #E2E8F0',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  {label}
+                  <ChevronDown size={14} />
+                </button>
+              )
+            })}
           </div>
         </section>
 

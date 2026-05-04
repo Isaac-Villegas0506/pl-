@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Search, Plus, MoreVertical, Pencil, Trash2, ChevronDown, ChevronUp, BookOpen,
+  Archive, Eye, FileText, X, ClipboardList,
 } from 'lucide-react'
+import Image from 'next/image'
 import AdminTopBar from '@/components/layout/AdminTopBar'
 import {
   cambiarEstadoLecturaAction,
@@ -23,6 +25,13 @@ const ESTADO_ESTILOS: Record<string, { bg: string; color: string; label: string 
   borrador:   { bg: '#FEF3C7', color: '#92400E', label: 'Borrador' },
   archivado:  { bg: '#F3F4F6', color: '#6B7280', label: 'Archivado' },
 }
+
+const FILTRO_ESTADOS = [
+  { label: 'Todos', valor: 'todos' },
+  { label: 'Publicados', valor: 'publicado' },
+  { label: 'Borradores', valor: 'borrador' },
+  { label: 'Archivados', valor: 'archivado' },
+]
 
 const CATALOGOS_LABELS: Record<string, string> = {
   materias: 'Materias',
@@ -203,13 +212,16 @@ export default function ContenidoContent({ lecturas, stats, catalogos }: Props) 
   const router = useRouter()
   const [tab, setTab] = useState<Tab>('Lecturas')
   const [busqueda, setBusqueda] = useState('')
+  const [filtroEstado, setFiltroEstado] = useState('todos')
   const [menuAbierto, setMenuAbierto] = useState<string | null>(null)
   const [lecturasLocal, setLecturasLocal] = useState(lecturas)
 
-  const lecturasFiltradas = lecturasLocal.filter(l =>
-    l.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
-    l.autor.toLowerCase().includes(busqueda.toLowerCase())
-  )
+  const lecturasFiltradas = lecturasLocal.filter(l => {
+    const matchBusqueda = l.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
+      l.autor.toLowerCase().includes(busqueda.toLowerCase())
+    const matchEstado = filtroEstado === 'todos' || l.estado === filtroEstado
+    return matchBusqueda && matchEstado
+  })
 
   async function handleCambiarEstado(id: string, estado: LecturaAdminResumen['estado']) {
     await cambiarEstadoLecturaAction(id, estado)
@@ -218,192 +230,289 @@ export default function ContenidoContent({ lecturas, stats, catalogos }: Props) 
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
-      <AdminTopBar
-        title="Contenido"
-        subtitle={`${stats.totalLecturas} lecturas · ${stats.totalPreguntas} preguntas`}
-      />
+    <div style={{ minHeight: '100vh', background: '#F8FAFF', padding: '32px 24px 100px' }}>
+      <div className="estudiante-container">
 
-      {/* TABS */}
-      <div style={{
-        display: 'flex', background: 'white',
-        borderBottom: '1px solid #F3F4F6',
-        padding: '0 16px',
-      }}>
-        {TABS.map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            style={{
-              flex: 1, height: '46px', border: 'none', background: 'none',
-              fontSize: '14px', fontWeight: '700', cursor: 'pointer',
-              color: tab === t ? '#4F46E5' : '#9CA3AF',
-              borderBottom: tab === t ? '2.5px solid #4F46E5' : '2.5px solid transparent',
-              transition: 'all 0.2s',
-            }}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
+        {/* HEADER */}
+        <header style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '40px' }} className="explorar-header-row">
+          <div style={{ flexShrink: 0 }}>
+            <h1 style={{ fontSize: '30px', fontWeight: 800, color: '#0F172A' }}>
+              Contenido
+            </h1>
+            <p style={{ fontSize: '14px', color: '#64748B', marginTop: '4px', fontWeight: 500 }}>
+              {stats.totalLecturas} lecturas · {stats.totalPreguntas} preguntas en el sistema
+            </p>
+          </div>
 
-      {tab === 'Lecturas' && (
-        <div>
-          {/* Búsqueda */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            background: 'white', border: '1.5px solid #E5E7EB',
-            borderRadius: '14px', padding: '0 16px', height: '48px',
-            margin: '12px 16px 0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-          }}>
-            <Search size={16} color="#9CA3AF" strokeWidth={1.5} />
-            <input
-              value={busqueda}
-              onChange={e => setBusqueda(e.target.value)}
-              placeholder="Buscar lectura..."
+          {/* Search */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, maxWidth: '100%' }}>
+            <div style={{
+              position: 'relative', flex: 1, minWidth: 0,
+            }}>
+              <Search size={18} color="#94A3B8" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+              <input
+                value={busqueda}
+                onChange={e => setBusqueda(e.target.value)}
+                placeholder="Buscar lectura por título o autor..."
+                style={{
+                  width: '100%', height: '52px', paddingLeft: '48px', paddingRight: busqueda ? '44px' : '16px',
+                  border: '2px solid #E2E8F0', borderRadius: '18px', fontSize: '15px',
+                  color: '#0F172A', background: 'white', fontFamily: 'inherit', outline: 'none',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                  transition: 'border-color 0.2s, box-shadow 0.2s',
+                }}
+                onFocus={e => { e.target.style.borderColor = '#4F46E5'; e.target.style.boxShadow = '0 0 0 4px rgba(79,70,229,0.08)' }}
+                onBlur={e => { e.target.style.borderColor = '#E2E8F0'; e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)' }}
+              />
+              {busqueda && (
+                <button onClick={() => setBusqueda('')} style={{
+                  position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)',
+                  background: '#F1F5F9', border: 'none', borderRadius: '50%',
+                  width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                }}>
+                  <X size={14} color="#64748B" />
+                </button>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* TABS */}
+        <div style={{ display: 'flex', background: 'white', borderRadius: '16px', padding: '4px', marginBottom: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          {TABS.map(t => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
               style={{
-                flex: 1, border: 'none', outline: 'none',
-                background: 'transparent', fontSize: '14px',
-                color: '#111827', fontFamily: 'inherit',
+                flex: 1, height: '42px', border: 'none', borderRadius: '12px',
+                fontSize: '14px', fontWeight: 700, cursor: 'pointer',
+                background: tab === t ? '#4F46E5' : 'transparent',
+                color: tab === t ? 'white' : '#9CA3AF',
+                transition: 'all 0.2s', fontFamily: 'inherit',
               }}
-            />
-          </div>
-
-          <div style={{ padding: '12px 0' }}>
-            {lecturasFiltradas.map(l => {
-              const estadoE = ESTADO_ESTILOS[l.estado] ?? ESTADO_ESTILOS.borrador
-              return (
-                <div
-                  key={l.id}
-                  style={{
-                    background: 'white', borderRadius: '16px',
-                    padding: '14px 16px', marginBottom: '8px',
-                    marginLeft: '16px', marginRight: '16px',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-                    display: 'flex', alignItems: 'center', gap: '12px',
-                    border: '1px solid rgba(0,0,0,0.03)',
-                  }}
-                >
-                  {/* Portada mini */}
-                  <div style={{
-                    width: '44px', height: '56px', borderRadius: '10px',
-                    background: obtenerGradientePortada(l.id),
-                    flexShrink: 0, overflow: 'hidden',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <BookOpen size={18} color="rgba(255,255,255,0.8)" />
-                  </div>
-
-                  {/* Info */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{
-                      fontSize: '14px', fontWeight: '700', color: '#111827',
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    }}>
-                      {l.titulo}
-                    </p>
-                    <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '1px' }}>
-                      {l.autor}
-                    </p>
-                    <div style={{ display: 'flex', gap: '6px', marginTop: '5px', alignItems: 'center' }}>
-                      <span style={{
-                        fontSize: '10px', fontWeight: '700',
-                        background: estadoE.bg, color: estadoE.color,
-                        borderRadius: '6px', padding: '2px 8px',
-                      }}>
-                        {estadoE.label}
-                      </span>
-                      <span style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                        {l.total_preguntas} preg · {l.total_asignaciones} asig
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => setMenuAbierto(menuAbierto === l.id ? null : l.id)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', flexShrink: 0 }}
-                  >
-                    <MoreVertical size={16} color="#9CA3AF" />
-                  </button>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {tab === 'Catálogos' && (
-        <div style={{ padding: '12px 16px' }}>
-          {Object.entries(catalogos).map(([tabla, items]) => (
-            <SeccionCatalogo
-              key={tabla}
-              tabla={tabla === 'niveles' ? 'niveles_dificultad' : tabla}
-              label={CATALOGOS_LABELS[tabla] ?? tabla}
-              items={items}
-            />
+            >
+              {t}
+            </button>
           ))}
         </div>
-      )}
 
-      {/* FAB */}
-      <button
-        onClick={() => router.push('/profesor/lecturas/nueva')}
-        style={{
-          position: 'fixed', bottom: '80px', right: '20px', zIndex: 100,
-          width: '56px', height: '56px', borderRadius: '50%',
-          background: 'linear-gradient(135deg, #4F46E5, #6D28D9)',
-          border: 'none', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 20px rgba(79,70,229,0.4)',
-        }}
-      >
-        <Plus size={24} color="white" strokeWidth={2.5} />
-      </button>
-
-      {/* Menú lectura */}
-      {menuAbierto && (() => {
-        const l = lecturasLocal.find(x => x.id === menuAbierto)
-        if (!l) return null
-        return (
+        {tab === 'Lecturas' && (
           <>
-            <div onClick={() => setMenuAbierto(null)} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.4)' }} />
-            <div style={{
-              position: 'fixed', bottom: '76px', left: '16px', right: '16px',
-              zIndex: 201, background: 'white', borderRadius: '20px',
-              boxShadow: '0 -8px 40px rgba(0,0,0,0.15)', overflow: 'hidden',
-            }}>
-              <div style={{ padding: '14px 16px', borderBottom: '1px solid #F3F4F6' }}>
-                <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827' }}>{l.titulo}</p>
-              </div>
-              {[
-                { label: 'Gestionar preguntas', action: () => router.push(`/admin/contenido/lecturas/${l.id}/preguntas`), color: '#111827' },
-                l.estado !== 'publicado' && { label: 'Publicar', action: () => handleCambiarEstado(l.id, 'publicado'), color: '#10B981' },
-                l.estado !== 'archivado' && { label: 'Archivar', action: () => handleCambiarEstado(l.id, 'archivado'), color: '#F59E0B' },
-                l.estado !== 'borrador' && { label: 'Pasar a borrador', action: () => handleCambiarEstado(l.id, 'borrador'), color: '#6B7280' },
-              ].filter(Boolean).map((item) => {
-                const it = item as { label: string; action: () => void; color: string }
-                return (
-                  <button key={it.label} onClick={it.action} style={{
-                    width: '100%', padding: '14px 16px', border: 'none',
-                    background: 'none', cursor: 'pointer', textAlign: 'left',
-                    fontSize: '14px', fontWeight: '600', color: it.color,
-                    borderBottom: '1px solid #F9FAFB',
-                  }}>
-                    {it.label}
-                  </button>
-                )
-              })}
-              <button onClick={() => setMenuAbierto(null)} style={{
-                width: '100%', padding: '14px', border: 'none', background: 'none',
-                cursor: 'pointer', fontSize: '14px', fontWeight: '600', color: '#9CA3AF', textAlign: 'center',
-              }}>
-                Cancelar
-              </button>
+            {/* STATE FILTER CHIPS */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
+              {FILTRO_ESTADOS.map(f => (
+                <button
+                  key={f.valor}
+                  onClick={() => setFiltroEstado(f.valor)}
+                  style={{
+                    padding: '8px 18px', borderRadius: '99px',
+                    fontSize: '13px', fontWeight: 700, cursor: 'pointer',
+                    border: filtroEstado === f.valor ? 'none' : '1.5px solid #E2E8F0',
+                    background: filtroEstado === f.valor ? '#4F46E5' : 'white',
+                    color: filtroEstado === f.valor ? 'white' : '#64748B',
+                    boxShadow: filtroEstado === f.valor ? '0 4px 12px rgba(79,70,229,0.2)' : 'none',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  {f.label}
+                </button>
+              ))}
             </div>
+
+            {/* RESULTS COUNT */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#0F172A' }}>
+                {lecturasFiltradas.length} {lecturasFiltradas.length === 1 ? 'lectura' : 'lecturas'}
+              </h2>
+            </div>
+
+            {/* GRID - Explorar style */}
+            {lecturasFiltradas.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94A3B8' }}>
+                <BookOpen size={48} color="#CBD5E1" style={{ margin: '0 auto 16px' }} />
+                <p style={{ fontSize: '16px', fontWeight: 700, color: '#64748B' }}>Sin resultados</p>
+                <p style={{ fontSize: '14px', marginTop: '4px' }}>No hay lecturas que coincidan con los filtros.</p>
+              </div>
+            ) : (
+              <div className="explorar-premium-grid">
+                {lecturasFiltradas.map(l => {
+                  const gradient = obtenerGradientePortada(l.id)
+                  const estadoE = ESTADO_ESTILOS[l.estado] ?? ESTADO_ESTILOS.borrador
+                  return (
+                    <div key={l.id} style={{ display: 'flex', flexDirection: 'column', gap: '12px', position: 'relative' }}>
+                      {/* Card Cover */}
+                      <div
+                        style={{
+                          position: 'relative', aspectRatio: '3/4',
+                          background: gradient, borderRadius: '24px',
+                          overflow: 'hidden', display: 'flex',
+                          alignItems: 'center', justifyContent: 'center',
+                          transition: 'all 0.3s ease', cursor: 'pointer',
+                        }}
+                        className="book-card-container"
+                        onClick={() => router.push(`/admin/contenido/lecturas/${l.id}/preguntas`)}
+                      >
+                        {/* Estado badge */}
+                        <span style={{
+                          position: 'absolute', top: '12px', left: '12px', zIndex: 5,
+                          fontSize: '10px', fontWeight: 800, textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          background: estadoE.bg, color: estadoE.color,
+                          borderRadius: '8px', padding: '4px 10px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        }}>
+                          {estadoE.label}
+                        </span>
+
+                        {/* 3-dot menu */}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setMenuAbierto(menuAbierto === l.id ? null : l.id) }}
+                          style={{
+                            position: 'absolute', top: '12px', right: '12px', zIndex: 5,
+                            width: '36px', height: '36px',
+                            background: 'rgba(255,255,255,0.9)',
+                            backdropFilter: 'blur(8px)',
+                            border: 'none', borderRadius: '50%',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                          }}
+                        >
+                          <MoreVertical size={18} color="#374151" />
+                        </button>
+
+                        {/* Dropdown menu (desktop-friendly) */}
+                        {menuAbierto === l.id && (
+                          <div
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                              position: 'absolute', top: '52px', right: '12px', zIndex: 20,
+                              background: 'white', borderRadius: '16px',
+                              boxShadow: '0 12px 40px rgba(0,0,0,0.18)',
+                              border: '1px solid #E2E8F0',
+                              minWidth: '200px', overflow: 'hidden',
+                            }}
+                          >
+                            {[
+                              { label: 'Editar lectura', icon: Pencil, action: () => { router.push(`/profesor/lecturas/${l.id}/editar`); setMenuAbierto(null) }, color: '#0F172A' },
+                              { label: 'Gestionar preguntas', icon: ClipboardList, action: () => { router.push(`/admin/contenido/lecturas/${l.id}/preguntas`); setMenuAbierto(null) }, color: '#4F46E5' },
+                              ...(l.estado !== 'publicado' ? [{ label: 'Publicar', icon: Eye, action: () => handleCambiarEstado(l.id, 'publicado'), color: '#10B981' }] : []),
+                              ...(l.estado !== 'archivado' ? [{ label: 'Archivar', icon: Archive, action: () => handleCambiarEstado(l.id, 'archivado'), color: '#F59E0B' }] : []),
+                              ...(l.estado !== 'borrador' ? [{ label: 'Pasar a borrador', icon: FileText, action: () => handleCambiarEstado(l.id, 'borrador'), color: '#6B7280' }] : []),
+                            ].map(item => (
+                              <button
+                                key={item.label}
+                                onClick={item.action}
+                                style={{
+                                  width: '100%', padding: '12px 16px', border: 'none',
+                                  background: 'none', cursor: 'pointer', textAlign: 'left',
+                                  fontSize: '14px', fontWeight: 600, color: item.color,
+                                  display: 'flex', alignItems: 'center', gap: '10px',
+                                  transition: 'background 0.15s', fontFamily: 'inherit',
+                                }}
+                                onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')}
+                                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                              >
+                                <item.icon size={16} />
+                                {item.label}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {l.portada_url ? (
+                          <Image src={l.portada_url} alt={l.titulo} fill style={{ objectFit: 'cover' }} />
+                        ) : (
+                          <BookOpen size={64} color="rgba(255,255,255,0.3)" strokeWidth={1.5} />
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div style={{ padding: '0 4px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <span style={{ fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#4F46E5' }}>
+                          {l.materia_nombre || 'General'}
+                        </span>
+                        <h3 style={{
+                          fontSize: '15px', fontWeight: 800, color: '#0F172A', lineHeight: '1.2',
+                          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                        }}>
+                          {l.titulo}
+                        </h3>
+                        <p style={{ fontSize: '12px', color: '#64748B', fontWeight: 500 }}>{l.autor}</p>
+                        <p style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>
+                          {l.total_preguntas} preg · {l.total_asignaciones} asig
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </>
-        )
-      })()}
+        )}
+
+        {tab === 'Catálogos' && (
+          <div>
+            {Object.entries(catalogos).map(([tabla, items]) => (
+              <SeccionCatalogo
+                key={tabla}
+                tabla={tabla === 'niveles' ? 'niveles_dificultad' : tabla}
+                label={CATALOGOS_LABELS[tabla] ?? tabla}
+                items={items}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* FAB */}
+        <button
+          onClick={() => router.push('/profesor/lecturas/nueva')}
+          style={{
+            position: 'fixed', bottom: '80px', right: '20px', zIndex: 100,
+            width: '56px', height: '56px', borderRadius: '50%',
+            background: 'linear-gradient(135deg, #4F46E5, #6D28D9)',
+            border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 20px rgba(79,70,229,0.4)',
+          }}
+        >
+          <Plus size={24} color="white" strokeWidth={2.5} />
+        </button>
+
+        {/* Close menu overlay */}
+        {menuAbierto && (
+          <div
+            onClick={() => setMenuAbierto(null)}
+            style={{ position: 'fixed', inset: 0, zIndex: 1 }}
+          />
+        )}
+      </div>
+
+      <style jsx global>{`
+        .explorar-premium-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px 16px;
+        }
+
+        @media (min-width: 640px) {
+          .explorar-premium-grid { grid-template-columns: repeat(3, 1fr); gap: 32px 24px; }
+        }
+
+        @media (min-width: 1024px) {
+          .explorar-premium-grid { grid-template-columns: repeat(4, 1fr); }
+          .explorar-header-row { flex-direction: row !important; align-items: center !important; }
+        }
+
+        @media (min-width: 1280px) {
+          .explorar-premium-grid { grid-template-columns: repeat(5, 1fr); }
+        }
+
+        .book-card-container:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+      `}</style>
     </div>
   )
 }

@@ -1,7 +1,10 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import AdminNavBar from '@/components/layout/AdminNavBar'
+import AdminDesktopSidebar from '@/components/layout/AdminDesktopSidebar'
 import type { ReactNode } from 'react'
+
+import './admin.css'
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const supabase = await createClient()
@@ -22,8 +25,11 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   if (perfil.rol !== 'administrador') redirect('/inicio')
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', paddingBottom: '76px' }}>
-      {children}
+    <div className="admin-shell">
+      <AdminDesktopSidebar />
+      <main className="admin-main">
+        {children}
+      </main>
       <AdminNavBar />
     </div>
   )

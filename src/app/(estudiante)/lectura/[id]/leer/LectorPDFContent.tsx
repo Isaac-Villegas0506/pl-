@@ -3,45 +3,29 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { 
+import {
   ChevronLeft, Bookmark, Minus, Plus, Sun, Moon, ChevronRight,
-  Search, ZoomIn, ZoomOut, AlertCircle, Trophy
+  Search, ZoomIn, ZoomOut, AlertCircle, Trophy, Type, Contrast
 } from 'lucide-react'
 
 const PDFViewer = dynamic(() => import('./PDFViewer'), { ssr: false })
 import { createClient } from '@/lib/supabase/client'
 import { registrarActividadHoyAction } from '../../../perfil/actions'
+import { toggleFavoritoAction } from '../actions'
 
 function SpinnerCarga() {
   return (
-    <div style={{
-      width: '100%', minHeight: '300px',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
-      <div style={{
-        width: '32px', height: '32px', borderRadius: '50%',
-        border: '3px solid rgba(255,255,255,0.1)',
-        borderTopColor: '#4F46E5',
-        animation: 'spin 0.8s linear infinite',
-      }} />
+    <div style={{ width: '100%', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '3px solid #E2E8F0', borderTopColor: '#4F46E5', animation: 'spin 0.8s linear infinite' }} />
     </div>
   )
 }
 
 function ErrorCarga() {
   return (
-    <div style={{
-      width: '100%', minHeight: '300px',
-      display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center', gap: '12px',
-    }}>
-      <AlertCircle size={32} color="#F43F5E" strokeWidth={1.5} />
-      <p style={{
-        fontSize: '14px', color: 'rgba(255,255,255,0.6)',
-        fontWeight: '600', textAlign: 'center',
-      }}>
-        No se pudo cargar el PDF
-      </p>
+    <div style={{ width: '100%', minHeight: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+      <AlertCircle size={32} color="#F43F5E" />
+      <p style={{ fontSize: '14px', color: '#64748B', fontWeight: 600 }}>No se pudo cargar el PDF</p>
     </div>
   )
 }
@@ -50,22 +34,18 @@ interface LectorPDFContentProps {
   pdfUrl: string
   lecturaId: string
   lecturaTitulo: string
-  lecturaAutor: string // FIX 3
+  lecturaAutor: string
+  portadaUrl: string | null
   asignacionId: string | null
   totalPreguntas: number
   paginaInicial: number
   estudianteId: string
+  esFavoritoInicial: boolean
 }
 
 export default function LectorPDFContent({
-  pdfUrl,
-  lecturaId,
-  lecturaTitulo,
-  lecturaAutor, // FIX 3
-  asignacionId,
-  totalPreguntas,
-  paginaInicial,
-  estudianteId,
+  pdfUrl, lecturaId, lecturaTitulo, lecturaAutor, portadaUrl,
+  asignacionId, totalPreguntas, paginaInicial, estudianteId, esFavoritoInicial,
 }: LectorPDFContentProps) {
   const router = useRouter()
   const supabaseRef = useRef(createClient())
@@ -74,699 +54,195 @@ export default function LectorPDFContent({
 
   const [numPages, setNumPages] = useState<number | null>(null)
   const [paginaActual, setPaginaActual] = useState(Math.max(1, paginaInicial))
-  const [containerWidth, setContainerWidth] = useState<number>(
-    typeof window !== 'undefined' ? window.innerWidth : 390
-  )
-  const [fontSize, setFontSize] = useState(16)
-  const [modoOscuro, setModoOscuro] = useState(true)
+  const [containerWidth, setContainerWidth] = useState(390)
+  const [modoOscuro, setModoOscuro] = useState(false)
   const [mostrarAjustes, setMostrarAjustes] = useState(false)
   const [showCompletado, setShowCompletado] = useState(false)
-
-  // ZOOM & PAN
+  const [esFavorito, setEsFavorito] = useState(esFavoritoInicial)
   const [zoom, setZoom] = useState(100)
   const [zoomPanelAbierto, setZoomPanelAbierto] = useState(false)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
   const [arrastrando, setArrastrando] = useState(false)
   const [origenArrastre, setOrigenArrastre] = useState({ x: 0, y: 0 })
   const [offsetInicio, setOffsetInicio] = useState({ x: 0, y: 0 })
-
   const touchStartRef = useRef<number | null>(null)
   const hasSavedRef = useRef(false)
 
-  // Read preferences from localStorage
   useEffect(() => {
-    const savedFont = localStorage.getItem('pl_fontSize')
-    const savedModo = localStorage.getItem('pl_modoOscuro')
-    if (savedFont) setFontSize(parseInt(savedFont, 10))
-    if (savedModo) setModoOscuro(savedModo !== 'false')
+    const m = localStorage.getItem('pl_modoOscuro')
+    if (m) setModoOscuro(m === 'true')
   }, [])
 
-  useEffect(() => {
-    if (estudianteId) {
-      registrarActividadHoyAction(estudianteId).catch(console.error)
-    }
-  }, [estudianteId])
+  useEffect(() => { if (estudianteId) registrarActividadHoyAction(estudianteId).catch(console.error) }, [estudianteId])
 
-  // Measure container with ResizeObserver
   useEffect(() => {
     if (!containerRef.current) return
-
-    const observer = new ResizeObserver((entries) => {
-      const ancho = entries[0]?.contentRect.width
-      if (ancho && ancho > 0) setContainerWidth(ancho)
-    })
-
-    observer.observe(containerRef.current)
-
-    // Medición inmediata
-    const anchoInicial = containerRef.current.clientWidth
-    if (anchoInicial > 0) setContainerWidth(anchoInicial)
-
-    return () => observer.disconnect()
+    const obs = new ResizeObserver(e => { const w = e[0]?.contentRect.width; if (w && w > 0) setContainerWidth(w) })
+    obs.observe(containerRef.current)
+    const iw = containerRef.current.clientWidth; if (iw > 0) setContainerWidth(iw)
+    return () => obs.disconnect()
   }, [])
 
-  // Save progress with debounce
-  const guardarProgreso = useCallback(
-    (pagina: number, terminado: boolean) => {
-      if (!numPages) return
+  const guardarProgreso = useCallback((pagina: number, terminado: boolean) => {
+    if (!numPages) return
+    const pct = Math.round((pagina / numPages) * 100)
+    const doSave = async () => { await (supabaseRef.current as any).from('progreso_lectura').upsert({ estudiante_id: estudianteId, lectura_id: lecturaId, pagina_actual: pagina, paginas_total: numPages, porcentaje: pct, terminado }, { onConflict: 'estudiante_id,lectura_id' }) }
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(doSave, 2000)
+  }, [numPages, estudianteId, lecturaId])
 
-      const porcentaje = Math.round((pagina / numPages) * 100)
-
-      const doSave = async () => {
-        await (supabaseRef.current as any)
-          .from('progreso_lectura')
-          .upsert(
-            {
-              estudiante_id: estudianteId,
-              lectura_id: lecturaId,
-              pagina_actual: pagina,
-              paginas_total: numPages,
-              porcentaje,
-              terminado,
-            },
-            { onConflict: 'estudiante_id,lectura_id' }
-          )
-
-        if (terminado) {
-          await (supabaseRef.current as any)
-            .from('historial_lectura')
-            .upsert(
-              {
-                estudiante_id: estudianteId,
-                lectura_id: lecturaId,
-                fecha_fin: new Date().toISOString(),
-              },
-              { onConflict: 'estudiante_id,lectura_id' }
-            )
-        }
-      }
-
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
-      saveTimerRef.current = setTimeout(doSave, 2000)
-    },
-    [numPages, estudianteId, lecturaId]
-  )
-
-  // Save immediately (no debounce)
   const guardarInmediato = useCallback(async () => {
     if (!numPages || hasSavedRef.current) return
     hasSavedRef.current = true
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
-
-    const porcentaje = Math.round((paginaActual / numPages) * 100)
-    await (supabaseRef.current as any)
-      .from('progreso_lectura')
-      .upsert(
-        {
-          estudiante_id: estudianteId,
-          lectura_id: lecturaId,
-          pagina_actual: paginaActual,
-          paginas_total: numPages,
-          porcentaje,
-          terminado: paginaActual === numPages,
-        },
-        { onConflict: 'estudiante_id,lectura_id' }
-      )
+    await (supabaseRef.current as any).from('progreso_lectura').upsert({ estudiante_id: estudianteId, lectura_id: lecturaId, pagina_actual: paginaActual, paginas_total: numPages, porcentaje: Math.round((paginaActual / numPages) * 100), terminado: paginaActual === numPages }, { onConflict: 'estudiante_id,lectura_id' })
   }, [numPages, paginaActual, estudianteId, lecturaId])
 
-  // Cleanup: save on unmount
-  useEffect(() => {
-    return () => {
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
-    }
-  }, [])
+  useEffect(() => () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }, [])
 
-  function handlePageChange(newPage: number) {
-    if (!numPages || newPage < 1 || newPage > numPages) return
-    setPaginaActual(newPage)
-    hasSavedRef.current = false
-    guardarProgreso(newPage, newPage === numPages)
-
-    if (newPage === numPages) {
-      setTimeout(() => setShowCompletado(true), 500)
-    }
+  function handlePageChange(n: number) {
+    if (!numPages || n < 1 || n > numPages) return
+    setPaginaActual(n); hasSavedRef.current = false; guardarProgreso(n, n === numPages)
+    if (n === numPages) setTimeout(() => setShowCompletado(true), 500)
   }
 
-  // Touch swipe handlers (DISABLED if zoomed in to allow panning)
-  function handleTouchStart(e: React.TouchEvent) {
-    if (zoom > 100) return
-    touchStartRef.current = e.touches[0].clientX
-  }
-
-  function handleTouchEnd(e: React.TouchEvent) {
+  const handleTouchStart = (e: React.TouchEvent) => { if (zoom === 100) touchStartRef.current = e.touches[0].clientX }
+  const handleTouchEnd = (e: React.TouchEvent) => {
     if (zoom > 100 || touchStartRef.current === null) return
-    const diff = touchStartRef.current - e.changedTouches[0].clientX
-    touchStartRef.current = null
-
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) handlePageChange(paginaActual + 1) // swipe left → next
-      else handlePageChange(paginaActual - 1) // swipe right → prev
-    }
+    const d = touchStartRef.current - e.changedTouches[0].clientX; touchStartRef.current = null
+    if (Math.abs(d) > 50) handlePageChange(paginaActual + (d > 0 ? 1 : -1))
   }
 
-  function handleFontSize(delta: number) {
-    const newSize = Math.max(14, Math.min(22, fontSize + delta))
-    setFontSize(newSize)
-    localStorage.setItem('pl_fontSize', String(newSize))
-  }
+  const toggleFav = async () => { const r = await toggleFavoritoAction(lecturaId, estudianteId, esFavorito); if (r.success) setEsFavorito(r.esFavorito) }
 
-  function toggleModo() {
-    setModoOscuro(!modoOscuro)
-    localStorage.setItem('pl_modoOscuro', String(!modoOscuro))
-  }
-
-  // ZOOM & PAN FUNCTIONS
-  const subirZoom = () => setZoom(prev => Math.min(prev + 5, 300))
-  const bajarZoom = () => {
-    setZoom(prev => {
-      const nuevo = Math.max(prev - 5, 50)
-      if (nuevo <= 100) setOffset({ x: 0, y: 0 })
-      return nuevo
-    })
-  }
-  const resetZoom = () => {
-    setZoom(100)
-    setOffset({ x: 0, y: 0 })
-  }
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    if (zoom <= 100) return
-    setArrastrando(true)
-    setOrigenArrastre({ x: e.clientX, y: e.clientY })
-    setOffsetInicio({ ...offset })
-    e.currentTarget.setPointerCapture(e.pointerId)
-  }
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!arrastrando || zoom <= 100) return
-    const dx = e.clientX - origenArrastre.x
-    const dy = e.clientY - origenArrastre.y
-    setOffset({
-      x: offsetInicio.x + dx,
-      y: offsetInicio.y + dy,
-    })
-  }
-
+  const handlePointerDown = (e: React.PointerEvent) => { if (zoom <= 100) return; setArrastrando(true); setOrigenArrastre({ x: e.clientX, y: e.clientY }); setOffsetInicio({ ...offset }); e.currentTarget.setPointerCapture(e.pointerId) }
+  const handlePointerMove = (e: React.PointerEvent) => { if (!arrastrando || zoom <= 100) return; setOffset({ x: offsetInicio.x + (e.clientX - origenArrastre.x), y: offsetInicio.y + (e.clientY - origenArrastre.y) }) }
   const handlePointerUp = () => setArrastrando(false)
 
-  async function handleBack() {
-    await guardarInmediato()
-    router.push(`/lectura/${lecturaId}`)
-  }
+  async function handleBack() { await guardarInmediato(); router.push(`/lectura/${lecturaId}`) }
 
-  const bgColor = modoOscuro ? '#1A1A2E' : '#F8F9FA'
-  const textColor = modoOscuro ? '#FFFFFF' : '#0F172A'
-  const headerBg = modoOscuro ? '#1A1A2E' : '#FFFFFF'
-  const porcentaje = numPages ? Math.round((paginaActual / numPages) * 100) : 0
-  const anchoPDF = Math.floor((containerWidth * zoom) / 100)
+  const pct = numPages ? Math.round((paginaActual / numPages) * 100) : 0
+  const pdfW = Math.floor((containerWidth * zoom) / 100)
+  const bg = modoOscuro ? '#0F172A' : '#F7F9FB'
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 300,
-      background: bgColor,
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
-      {/* HEADER FIJO */}
-      <div style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 310,
-        height: '60px',
-        background: 'linear-gradient(135deg, #0F0C29, #302B63)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        display: 'flex', alignItems: 'center',
-        padding: '0 16px', gap: '12px',
-        boxShadow: '0 2px 16px rgba(0,0,0,0.3)',
-      }}>
-        {/* Botón atrás */}
-        <button
-          onClick={handleBack}
-          style={{
-            width: '36px', height: '36px', borderRadius: '10px',
-            background: 'rgba(255,255,255,0.1)',
-            border: 'none', cursor: 'pointer', flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-        >
-          <ChevronLeft size={20} color="white" strokeWidth={2.5} />
-        </button>
+    <div className="reader-container" style={{ position: 'fixed', inset: 0, zIndex: 300, background: bg, display: 'flex', flexDirection: 'column' }}>
 
-        {/* Título */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{
-            fontSize: '15px', fontWeight: '700', color: 'white',
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-            margin: 0,
-          }}>
-            {lecturaTitulo}
-          </p>
-          <p style={{ 
-            fontSize: '11px', color: 'rgba(255,255,255,0.45)',
-            fontWeight: '500', marginTop: '1px', margin: 0,
-          }}>
-            {lecturaAutor}
-          </p>
+      {/* === TOP APP BAR === */}
+      <header style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '64px', zIndex: 50, background: modoOscuro ? 'rgba(15,23,42,0.95)' : 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', borderBottom: '1px solid', borderColor: modoOscuro ? 'rgba(255,255,255,0.06)' : '#F1F5F9', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button onClick={handleBack} style={{ width: '40px', height: '40px', borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: modoOscuro ? '#94A3B8' : '#64748B' }}>
+            <ChevronLeft size={24} />
+          </button>
+          <span className="hide-mobile" style={{ fontSize: '16px', fontWeight: 800, color: modoOscuro ? 'white' : '#0F172A' }}>Plan Lectura</span>
         </div>
+        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', textAlign: 'center', pointerEvents: 'none' }}>
+          <p style={{ fontSize: '15px', fontWeight: 700, color: modoOscuro ? 'white' : '#0F172A', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>{lecturaTitulo}</p>
+          <p style={{ fontSize: '11px', color: modoOscuro ? '#64748B' : '#94A3B8', fontWeight: 600, margin: 0 }}>{lecturaAutor}</p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          {[
+            { Icon: Search, active: mostrarAjustes, onClick: () => setMostrarAjustes(!mostrarAjustes) },
+            { Icon: Contrast, active: modoOscuro, onClick: () => { setModoOscuro(!modoOscuro); localStorage.setItem('pl_modoOscuro', String(!modoOscuro)) } },
+            { Icon: Bookmark, active: esFavorito, onClick: toggleFav, fill: esFavorito },
+          ].map(({ Icon, active, onClick, fill }, i) => (
+            <button key={i} onClick={onClick} style={{ width: '40px', height: '40px', borderRadius: '50%', border: 'none', background: active ? (modoOscuro ? 'rgba(79,70,229,0.2)' : '#EEF2FF') : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: active ? '#4F46E5' : (modoOscuro ? '#94A3B8' : '#64748B'), transition: '0.2s' }}>
+              <Icon size={20} fill={fill ? 'currentColor' : 'none'} />
+            </button>
+          ))}
+        </div>
+      </header>
 
-        {/* Botón ajustes */}
-        <button
-          onClick={() => setMostrarAjustes(!mostrarAjustes)}
-          style={{
-            width: '36px', height: '36px', borderRadius: '10px',
-            background: 'rgba(255,255,255,0.1)',
-            border: 'none', cursor: 'pointer', flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'white', fontSize: '14px', fontWeight: 'bold'
-          }}
-        >
-          A
-        </button>
-
-        {/* Botón bookmark */}
-        <button style={{
-          width: '36px', height: '36px', borderRadius: '10px',
-          background: 'rgba(255,255,255,0.1)',
-          border: 'none', cursor: 'pointer', flexShrink: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Bookmark size={18} color="white" strokeWidth={2} />
-        </button>
-      </div>
-
-      {/* SETTINGS PANEL */}
+      {/* === SETTINGS DROPDOWN === */}
       {mostrarAjustes && (
-        <div className="px-4 py-4 space-y-4" style={{ 
-          position: 'fixed', top: '60px', left: 0, right: 0, zIndex: 90,
-          backgroundColor: modoOscuro ? '#2D2D44' : '#F1F5F9',
-          borderBottom: '1px solid rgba(0,0,0,0.1)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          animation: 'slideDown 0.2s ease'
-        }}>
-          <div className="flex items-center justify-center gap-4">
-            <button onClick={() => handleFontSize(-2)} className="cursor-pointer w-8 h-8 rounded-full flex items-center justify-center bg-white/10">
-              <Minus size={16} style={{ color: textColor }} />
-            </button>
-            <div className="flex gap-1.5">
-              {[14, 16, 18, 20, 22].map((s) => (
-                <div key={s} className={`w-2.5 h-2.5 rounded-full ${fontSize >= s ? 'bg-[#2563EB]' : 'bg-white/20'}`} />
-              ))}
+        <div style={{ position: 'absolute', top: '64px', right: '16px', zIndex: 55, background: modoOscuro ? '#1E293B' : 'white', border: '1px solid', borderColor: modoOscuro ? '#334155' : '#F1F5F9', borderRadius: '16px', padding: '20px', boxShadow: '0 20px 50px rgba(0,0,0,0.15)', minWidth: '260px', animation: 'slideUp 0.2s ease' }}>
+          <p style={{ fontSize: '10px', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Zoom</p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: modoOscuro ? '#0F172A' : '#F8FAFC', padding: '8px', borderRadius: '12px' }}>
+            <button onClick={() => setZoom(Math.max(50, zoom - 10))} style={{ width: '36px', height: '36px', borderRadius: '10px', border: 'none', background: modoOscuro ? '#1E293B' : 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: modoOscuro ? 'white' : '#0F172A' }}><Minus size={16} /></button>
+            <span style={{ fontWeight: 800, fontSize: '15px', color: modoOscuro ? 'white' : '#0F172A' }}>{zoom}%</span>
+            <button onClick={() => setZoom(Math.min(300, zoom + 10))} style={{ width: '36px', height: '36px', borderRadius: '10px', border: 'none', background: modoOscuro ? '#1E293B' : 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: modoOscuro ? 'white' : '#0F172A' }}><Plus size={16} /></button>
+          </div>
+        </div>
+      )}
+
+      {/* === MAIN READING AREA === */}
+      <main style={{ flex: 1, paddingTop: '80px', paddingBottom: '100px', overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '80px 16px 100px' }}
+        className="lector-main-area"
+      >
+        <article className="lector-article" style={{ background: modoOscuro ? '#1E293B' : 'white', width: '100%', maxWidth: '960px', borderRadius: '16px', boxShadow: modoOscuro ? 'none' : '0 10px 40px -10px rgba(0,0,0,0.05)', border: '1px solid', borderColor: modoOscuro ? '#334155' : '#E2E8F0', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+
+          {/* PDF Content */}
+          <div
+            ref={containerRef}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            style={{ flex: 1, overflow: zoom > 100 ? 'hidden' : 'auto', display: 'flex', justifyContent: 'center', padding: '16px', cursor: zoom > 100 ? (arrastrando ? 'grabbing' : 'grab') : 'default', userSelect: 'none' }}
+          >
+            <div style={{ transform: `translate(${offset.x}px, ${offset.y}px)`, transition: arrastrando ? 'none' : 'transform 0.15s ease', transformOrigin: 'top center' }}>
+              <PDFViewer
+                pdfUrl={`/api/pdf-proxy?url=${encodeURIComponent(pdfUrl)}`}
+                paginaActual={paginaActual}
+                width={pdfW}
+                onLoadSuccess={setNumPages}
+                loading={<SpinnerCarga />}
+                error={<ErrorCarga />}
+              />
             </div>
-            <button onClick={() => handleFontSize(2)} className="cursor-pointer w-8 h-8 rounded-full flex items-center justify-center bg-white/10">
-              <Plus size={16} style={{ color: textColor }} />
-            </button>
           </div>
-          <div className="flex gap-2 justify-center">
-            <button onClick={() => { setModoOscuro(false); localStorage.setItem('pl_modoOscuro', 'false') }}
-              className={`px-4 py-2 rounded-full text-sm cursor-pointer flex items-center gap-2 ${!modoOscuro ? 'bg-[#2563EB] text-white' : 'bg-white/10 text-white/70'}`}>
-              <Sun size={14} /> Claro
-            </button>
-            <button onClick={() => { setModoOscuro(true); localStorage.setItem('pl_modoOscuro', 'true') }}
-              className={`px-4 py-2 rounded-full text-sm cursor-pointer flex items-center gap-2 ${modoOscuro ? 'bg-[#2563EB] text-white' : 'bg-white/10 text-white/70'}`}>
-              <Moon size={14} /> Oscuro
-            </button>
+        </article>
+      </main>
+
+      {/* === BOTTOM NAVIGATION === */}
+      <nav style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '80px', zIndex: 50, background: modoOscuro ? 'rgba(15,23,42,0.95)' : 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderTop: '1px solid', borderColor: modoOscuro ? 'rgba(255,255,255,0.06)' : '#F1F5F9', boxShadow: '0 -8px 30px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
+        <button onClick={() => handlePageChange(paginaActual - 1)} disabled={paginaActual <= 1} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: paginaActual <= 1 ? 'not-allowed' : 'pointer', opacity: paginaActual <= 1 ? 0.3 : 1, padding: '8px 16px', color: modoOscuro ? '#94A3B8' : '#64748B' }}>
+          <ChevronLeft size={20} />
+          <span style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Anterior</span>
+        </button>
+
+        {/* Progress (hidden on small mobile) */}
+        <div className="hide-mobile" style={{ flex: 1, maxWidth: '400px', margin: '0 16px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ width: '100%', height: '6px', background: modoOscuro ? '#1E293B' : '#E2E8F0', borderRadius: '99px', overflow: 'hidden', marginBottom: '8px' }}>
+            <div style={{ height: '100%', width: `${pct}%`, background: '#4F46E5', borderRadius: '99px', transition: 'width 0.4s ease' }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '11px', fontWeight: 700, color: modoOscuro ? '#64748B' : '#94A3B8' }}>
+            <span>{pct}%</span>
+            <span>Página {paginaActual} de {numPages ?? '...'}</span>
           </div>
         </div>
-      )}
 
-      {/* ÁREA DEL PDF */}
-      <div
-        ref={containerRef}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
-        style={{ 
-          flex: 1, 
-          width: '100%',
-          overflow: zoom > 100 ? 'hidden' : 'auto', 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center', 
-          justifyContent: 'flex-start',
-          cursor: zoom > 100 ? (arrastrando ? 'grabbing' : 'grab') : 'default',
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          paddingTop: '68px', // To avoid header overlap
-          paddingBottom: '64px', // To avoid footer overlap
-        }}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div style={{
-          transform: `translate(${offset.x}px, ${offset.y}px)`,
-          transition: arrastrando ? 'none' : 'transform 0.15s ease',
-          transformOrigin: 'top center',
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-        }}>
-          <PDFViewer
-            pdfUrl={`/api/pdf-proxy?url=${encodeURIComponent(pdfUrl)}`}
-            paginaActual={paginaActual}
-            width={anchoPDF}
-            onLoadSuccess={(pages) => setNumPages(pages)}
-            loading={<SpinnerCarga />}
-            error={<ErrorCarga />}
-          />
-        </div>
-      </div>
-
-      {/* FOOTER PREMIUM — FLOATING DOCK */}
-      <div style={{
-        position: 'fixed',
-        bottom: '16px',
-        left: '16px',
-        right: '16px',
-        zIndex: 310,
-        background: modoOscuro ? 'rgba(30, 30, 50, 0.92)' : 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderRadius: '24px',
-        padding: '12px 16px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-        border: modoOscuro ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.05)',
-      }}>
-        {/* Fila superior: Paginación */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <button
-            onClick={() => handlePageChange(paginaActual - 1)}
-            disabled={paginaActual <= 1}
-            style={{
-              padding: '8px 12px',
-              borderRadius: '12px',
-              border: 'none',
-              background: 'rgba(255,255,255,0.05)',
-              color: paginaActual <= 1 ? 'rgba(148,163,184,0.3)' : '#94A3B8',
-              cursor: paginaActual <= 1 ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '13px',
-              fontWeight: '700',
-            }}
-          >
-            <ChevronLeft size={16} /> Anterior
-          </button>
-
-          <div style={{ textAlign: 'center' }}>
-            <p style={{
-              fontSize: '14px',
-              fontWeight: '800',
-              color: textColor,
-              margin: 0,
-            }}>
-              Pág. {paginaActual} <span style={{ color: '#94A3B8', fontWeight: '400' }}>de</span> {numPages ?? '...'}
-            </p>
-          </div>
-
-          <button
-            onClick={() => handlePageChange(paginaActual + 1)}
-            disabled={!numPages || paginaActual >= numPages}
-            style={{
-              padding: '8px 12px',
-              borderRadius: '12px',
-              border: 'none',
-              background: 'rgba(255,255,255,0.05)',
-              color: (!numPages || paginaActual >= numPages) ? 'rgba(148,163,184,0.3)' : '#94A3B8',
-              cursor: (!numPages || paginaActual >= numPages) ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '13px',
-              fontWeight: '700',
-            }}
-          >
-            Siguiente <ChevronRight size={16} />
-          </button>
+        {/* Mobile-only mini progress */}
+        <div className="hide-desktop" style={{ flex: 1, textAlign: 'center' }}>
+          <span style={{ fontSize: '13px', fontWeight: 800, color: modoOscuro ? 'white' : '#0F172A' }}>{paginaActual}</span>
+          <span style={{ fontSize: '12px', color: '#94A3B8', margin: '0 4px' }}>/</span>
+          <span style={{ fontSize: '12px', color: '#94A3B8' }}>{numPages ?? '...'}</span>
         </div>
 
-        {/* Fila inferior: Barra de progreso */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            flex: 1,
-            height: '6px',
-            background: modoOscuro ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-            borderRadius: '10px',
-            overflow: 'hidden',
-          }}>
-            <div style={{
-              height: '100%',
-              width: `${porcentaje}%`,
-              background: 'linear-gradient(90deg, #4F46E5, #818CF8)',
-              borderRadius: '10px',
-              transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: '0 0 10px rgba(79,70,229,0.4)',
-            }} />
-          </div>
-          <span style={{
-            fontSize: '12px',
-            fontWeight: '800',
-            color: '#4F46E5',
-            minWidth: '35px',
-          }}>
-            {porcentaje}%
-          </span>
-        </div>
-      </div>
+        <button onClick={() => handlePageChange(paginaActual + 1)} disabled={!numPages || paginaActual >= numPages} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: modoOscuro ? 'rgba(79,70,229,0.15)' : '#EEF2FF', border: 'none', borderRadius: '99px', cursor: (!numPages || paginaActual >= numPages) ? 'not-allowed' : 'pointer', opacity: (!numPages || paginaActual >= numPages) ? 0.3 : 1, padding: '8px 24px', color: '#4F46E5' }}>
+          <ChevronRight size={20} />
+          <span style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Siguiente</span>
+        </button>
+      </nav>
 
-      {/* Botón lupa (siempre visible) */}
-      <button
-        onClick={() => setZoomPanelAbierto(prev => !prev)}
-        style={{
-          position: 'absolute',
-          bottom: '120px',
-          right: '16px',
-          width: '44px',
-          height: '44px',
-          borderRadius: '13px',
-          background: zoomPanelAbierto
-            ? 'linear-gradient(135deg, #4F46E5, #6D28D9)'
-            : 'rgba(15, 12, 41, 0.9)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-          transition: 'all 0.2s',
-          zIndex: 110,
-        }}
-      >
-        <Search size={20} color="white" strokeWidth={2} />
-      </button>
-
-      {/* Panel de controles de zoom */}
-      {zoomPanelAbierto && (
-        <div style={{
-          position: 'absolute',
-          bottom: '172px',
-          right: '16px',
-          background: 'rgba(15,12,41,0.95)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          borderRadius: '18px',
-          padding: '14px',
-          border: '1px solid rgba(255,255,255,0.1)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '10px',
-          zIndex: 110,
-          animation: 'slideUp 0.2s ease',
-          minWidth: '72px',
-        }}>
-
-          {/* Botón + */}
-          <button
-            onClick={subirZoom}
-            disabled={zoom >= 300}
-            style={{
-              width: '44px', height: '44px', borderRadius: '12px',
-              background: zoom >= 300
-                ? 'rgba(255,255,255,0.05)'
-                : 'rgba(255,255,255,0.12)',
-              border: 'none', cursor: zoom >= 300 ? 'not-allowed' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.15s',
-            }}
-          >
-            <ZoomIn size={20} color={zoom >= 300 ? 'rgba(255,255,255,0.3)' : 'white'} strokeWidth={2} />
-          </button>
-
-          {/* Porcentaje actual */}
-          <button
-            onClick={resetZoom}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              display: 'flex', flexDirection: 'column',
-              alignItems: 'center', gap: '2px', padding: '4px',
-            }}
-          >
-            <span style={{
-              fontSize: '17px', fontWeight: '800', color: 'white',
-              lineHeight: '1',
-            }}>
-              {zoom}
-            </span>
-            <span style={{
-              fontSize: '10px', fontWeight: '600',
-              color: 'rgba(255,255,255,0.45)',
-              lineHeight: '1',
-            }}>
-              %
-            </span>
-            {zoom !== 100 && (
-              <span style={{
-                fontSize: '9px', color: '#818CF8',
-                fontWeight: '600', marginTop: '2px',
-              }}>
-                reset
-              </span>
-            )}
-          </button>
-
-          {/* Botón − */}
-          <button
-            onClick={bajarZoom}
-            disabled={zoom <= 50}
-            style={{
-              width: '44px', height: '44px', borderRadius: '12px',
-              background: zoom <= 50
-                ? 'rgba(255,255,255,0.05)'
-                : 'rgba(255,255,255,0.12)',
-              border: 'none', cursor: zoom <= 50 ? 'not-allowed' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.15s',
-            }}
-          >
-            <ZoomOut size={20} color={zoom <= 50 ? 'rgba(255,255,255,0.3)' : 'white'} strokeWidth={2} />
-          </button>
-
-        </div>
-      )}
-
-      {/* COMPLETADO MODAL */}
-      {/* MODAL ¡LECTURA COMPLETADA! */}
+      {/* === COMPLETADO MODAL === */}
       {showCompletado && (
-        <>
-          {/* Overlay oscuro */}
-          <div style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 200,
-            background: 'rgba(0,0,0,0.65)',
-            backdropFilter: 'blur(6px)',
-            WebkitBackdropFilter: 'blur(6px)',
-          }} />
-
-          {/* Sheet centrado */}
-          <div style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 201,
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-          }}>
-            <div style={{
-              width: '100%',
-              maxWidth: '480px',
-              background: 'white',
-              borderRadius: '28px 28px 0 0',
-              padding: '36px 24px',
-              paddingBottom: 'calc(36px + env(safe-area-inset-bottom, 0px))',
-              animation: 'slideUp 0.35s cubic-bezier(0.16,1,0.3,1)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center',
-            }}>
-
-              {/* Drag handle */}
-              <div style={{
-                width: '40px', height: '4px', borderRadius: '99px',
-                background: '#E5E7EB', marginBottom: '28px',
-              }} />
-
-              {/* Ícono trofeo */}
-              <div style={{
-                width: '88px', height: '88px', borderRadius: '24px',
-                background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                boxShadow: '0 10px 30px rgba(255,165,0,0.35)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginBottom: '20px',
-                transform: 'rotate(-3deg)',
-              }}>
-                <Trophy size={48} color="white" strokeWidth={2} />
-              </div>
-
-              {/* Título */}
-              <h2 style={{
-                fontFamily: 'var(--font-playfair, serif)',
-                fontSize: '26px', fontWeight: '900',
-                color: '#111827', lineHeight: '1.2',
-                marginBottom: '10px',
-              }}>
-                ¡Lectura Completada!
-              </h2>
-
-              {/* Subtexto */}
-              <p style={{
-                fontSize: '15px', color: '#6B7280',
-                lineHeight: '1.6', marginBottom: '6px',
-              }}>
-                Increíble trabajo. Has terminado de leer
-              </p>
-              <p style={{
-                fontSize: '16px', fontWeight: '700',
-                color: '#4F46E5', marginBottom: '32px',
-              }}>
-                "{lecturaTitulo}"
-              </p>
-
-              {/* Botón principal */}
-              <button
-                onClick={() => router.push('/inicio')}
-                style={{
-                  width: '100%', height: '54px',
-                  background: 'linear-gradient(135deg, #4F46E5, #6D28D9)',
-                  border: 'none', borderRadius: '16px',
-                  fontSize: '16px', fontWeight: '700', color: 'white',
-                  cursor: 'pointer', fontFamily: 'inherit',
-                  boxShadow: '0 6px 20px rgba(79,70,229,0.35)',
-                  marginBottom: '10px',
-                }}
-              >
-                ¡Genial! Volver al inicio
-              </button>
-
-              {/* Botón secundario (si existe evaluación) */}
-              {(totalPreguntas > 0 && asignacionId) && (
-                <button
-                  onClick={() => router.push(`/evaluacion/${asignacionId}`)}
-                  style={{
-                    width: '100%', height: '50px',
-                    background: 'transparent',
-                    border: '1.5px solid #E5E7EB',
-                    borderRadius: '16px',
-                    fontSize: '15px', fontWeight: '700', color: '#374151',
-                    cursor: 'pointer', fontFamily: 'inherit',
-                  }}
-                >
-                  Ir a la evaluación
-                </button>
-              )}
-
+        <div style={{ position: 'absolute', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} />
+          <div style={{ position: 'relative', background: 'white', width: '100%', maxWidth: '380px', borderRadius: '32px', padding: '40px 24px', textAlign: 'center', animation: 'slideUp 0.3s ease' }}>
+            <div style={{ width: '88px', height: '88px', borderRadius: '24px', background: 'linear-gradient(135deg, #FFD700, #F97316)', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 12px 30px rgba(249,115,22,0.3)', transform: 'rotate(-3deg)' }}>
+              <Trophy size={44} color="white" />
             </div>
+            <h2 style={{ fontSize: '24px', fontWeight: 900, color: '#0F172A', marginBottom: '8px' }}>¡Lectura Completada!</h2>
+            <p style={{ fontSize: '15px', color: '#64748B', marginBottom: '28px' }}>Has terminado <span style={{ color: '#4F46E5', fontWeight: 700 }}>"{lecturaTitulo}"</span></p>
+            <button onClick={() => router.push('/inicio')} style={{ width: '100%', height: '52px', background: '#4F46E5', border: 'none', borderRadius: '16px', fontSize: '16px', fontWeight: 800, color: 'white', cursor: 'pointer', boxShadow: '0 8px 20px rgba(79,70,229,0.25)', marginBottom: '10px' }}>Volver al inicio</button>
+            {(totalPreguntas > 0 && asignacionId) && (
+              <button onClick={() => router.push(`/evaluacion/${asignacionId}`)} style={{ width: '100%', height: '48px', background: 'white', border: '2px solid #F1F5F9', borderRadius: '16px', fontSize: '14px', fontWeight: 700, color: '#475569', cursor: 'pointer' }}>Ir a la evaluación</button>
+            )}
           </div>
-        </>
+        </div>
       )}
     </div>
   )

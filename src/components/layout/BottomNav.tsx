@@ -22,6 +22,10 @@ export default function BottomNav() {
   const pathname = usePathname()
   const router = useRouter()
 
+  const isReadingPage = pathname.includes('/lectura/')
+  
+  if (isReadingPage) return null
+
   function isActive(item: NavItem): boolean {
     if (item.exactMatch) return pathname === item.href
     return pathname.startsWith(item.href)

@@ -324,7 +324,7 @@ export default function EditarPerfilContent({ usuario }: { usuario: UsuarioPerfi
       </div>
 
       {/* BOTÓN GUARDAR FIJO */}
-      <div style={{
+      <div className="fixed-action-bar" style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 51,
         background: 'rgba(255,255,255,0.97)',
         backdropFilter: 'blur(16px)',
